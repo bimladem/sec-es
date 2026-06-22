@@ -1,13 +1,821 @@
 <!DOCTYPE html>
-<html>
+<html lang="pt">
 <head>
-  <meta charset="UTF-8">
-  <title>Loja</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Auditorias de Segurança Alimentar</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,300&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/chartjs-plugin-datalabels/2.1.0/chartjs-plugin-datalabels.min.js"></script>
+<style>
+:root {
+  --ink: #000000;
+  --ink-2: #1a1a1a;
+  --ink-3: #333333;
+  --ink-4: #555555;
+  --paper: #ffffff;
+  --paper-2: #f8f9fa;
+  --paper-3: #f1f3f5;
+  --line: #d1d1d1;
+  --line-2: #b1b1b1;
+  --n1: #70AD47; --n1-bg: #e8f5e9;
+  --n2: #FFC000; --n2-bg: #fff8e1;
+  --n3: #ED7D31; --n3-bg: #fff3e0;
+  --n4: #C00000; --n4-bg: #ffebee;
+  --bar-blue: #2b2fd8;
+  --bar-orange: #d8722a;
+  --bar-track: #e4e4e8;
+  --btn-border: #b1b1b1;
+  --btn-text: #222;
+  --shadow: 0 1px 4px rgba(0,0,0,.06), 0 2px 12px rgba(0,0,0,.04);
+}
+*, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+body {
+  font-family: 'DM Sans', sans-serif;
+  background: var(--paper);
+  color: var(--ink);
+  font-size: 16px;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ── HEADER ── */
+.header {
+  position: sticky; top: 0; z-index: 200;
+  background: rgba(255,255,255,.98);
+  backdrop-filter: blur(16px);
+  border-bottom: 1px solid var(--line);
+  padding: 0 32px;
+  height: 62px;
+  display: flex; align-items: center; justify-content: space-between; gap: 20px;
+}
+.header-left { display: flex; align-items: center; gap: 12px; }
+.header-icon {
+  width: 36px; height: 36px; border-radius: 9px;
+  background: #1c1c2e;
+  display: flex; align-items: center; justify-content: center;
+}
+.header-icon svg { width: 18px; height: 18px; fill: #fff; }
+.header-title { font-family: 'DM Serif Display', serif; font-size: 19px; color: var(--ink); letter-spacing: -0.2px; white-space: nowrap; }
+.header-subtitle { font-size: 11.5px; color: var(--ink-4); margin-top: 1px; }
+.btn-back {
+  display: none; align-items: center; gap: 6px;
+  padding: 6px 12px; border-radius: 7px;
+  border: 1px solid var(--line-2); background: var(--paper-3);
+  font-size: 13px; font-weight: 600; color: var(--ink-2);
+  cursor: pointer; font-family: 'DM Sans', sans-serif;
+  transition: all 0.15s;
+}
+.btn-back:hover { border-color: var(--ink-2); background: var(--paper); }
+.btn-back.visible { display: flex; }
+.btn-back svg { width: 14px; height: 14px; }
+
+/* ── MAIN ── */
+.main { max-width: 1320px; margin: 0 auto; padding: 28px 24px 64px; }
+
+/* ── STAT CARDS ── */
+.home-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 12px;
+  margin-bottom: 24px;
+}
+.stat-card {
+  background: #fff; border: 1px solid var(--line);
+  border-radius: 14px; padding: 20px 20px 16px;
+  box-shadow: var(--shadow);
+  display: flex; flex-direction: column; gap: 6px;
+  align-items: center; text-align: center;
+}
+.stat-card-label { font-size: 12px; font-weight: 800; letter-spacing: 0.7px; text-transform: uppercase; color: var(--ink-4); }
+.stat-card-val { font-family: 'DM Serif Display', serif; font-size: 42px; line-height: 1; color: var(--ink); }
+.stat-card-sub { font-size: 13px; color: var(--ink-4); margin-top: 2px; font-weight: 600; }
+.stat-card.n1 .stat-card-val { color: var(--n1); }
+.stat-card.n2 .stat-card-val { color: var(--n2); }
+.stat-card.n3 .stat-card-val { color: var(--n3); }
+.stat-card.n4 .stat-card-val { color: var(--n4); }
+
+/* ── FILTER BAR ── */
+.filter-bar {
+  display: flex; align-items: center; gap: 8px;
+  margin-bottom: 16px; flex-wrap: wrap;
+}
+.filter-label { font-size: 14px; color: var(--ink); font-weight: 700; margin-right: 4px; }
+.filter-btn {
+  padding: 6px 16px; border-radius: 99px;
+  border: 1px solid var(--line-2); background: #fff;
+  font-size: 13px; font-weight: 600; color: var(--ink-3);
+  cursor: pointer; font-family: 'DM Sans', sans-serif;
+  transition: all 0.15s; white-space: nowrap;
+}
+.filter-btn:hover { border-color: var(--ink); color: var(--ink); }
+.filter-btn.active { background: var(--ink); border-color: var(--ink); color: #fff; }
+.filter-divider { width: 1px; height: 20px; background: var(--line-2); }
+
+/* ── HOME TABLE ── */
+.home-table {
+  background: #fff; border: 1px solid var(--line);
+  border-radius: 14px; overflow: hidden; box-shadow: var(--shadow);
+}
+.ht-head {
+  display: grid;
+  grid-template-columns: 76px 220px 1fr 1fr 180px 110px 136px;
+  background: #f1f3f5; border-bottom: 1px solid var(--line);
+}
+.ht-th {
+  padding: 14px 12px; font-size: 13px; font-weight: 800;
+  letter-spacing: 0.5px; text-transform: uppercase; color: var(--ink);
+  text-align: center; border-right: 1px solid var(--line);
+  white-space: nowrap;
+}
+.ht-th:last-child { border-right: none; }
+.ht-th.left { text-align: left; padding-left: 16px; }
+
+.ht-row {
+  display: grid;
+  grid-template-columns: 76px 220px 1fr 1fr 180px 110px 136px;
+  border-bottom: 1px solid var(--line);
+  transition: background 0.12s;
+  cursor: pointer;
+}
+.ht-row:last-child { border-bottom: none; }
+.ht-row:hover { background: #f1f3f5; }
+
+.ht-td {
+  padding: 16px 12px; display: flex; align-items: center;
+  justify-content: center; border-right: 1px solid var(--line);
+  font-size: 15px; color: var(--ink); font-weight: 600;
+}
+.ht-td:last-child { border-right: none; }
+.ht-td.left { justify-content: flex-start; text-align: left; padding-left: 16px; }
+.rank-td { background: #f1f3f5; }
+
+/* ── PILLS ── */
+.rank-pill {
+  padding: 3px 10px; border-radius: 99px;
+  font-size: 12px; font-weight: 700; letter-spacing: 0.3px;
+  text-align: center;
+}
+.pill-n1 { background: var(--n1-bg); color: var(--n1); }
+.pill-n2 { background: var(--n2-bg); color: var(--n2); }
+.pill-n3 { background: var(--n3-bg); color: var(--n3); }
+.pill-n4 { background: var(--n4-bg); color: var(--n4); }
+
+/* ── PROGRESS MINI ── */
+.mini-prog { flex: 1; display: flex; flex-direction: column; gap: 8px; width: 100%; }
+.mini-row { display: flex; align-items: center; gap: 8px; }
+.mini-track { flex: 1; height: 6px; background: var(--bar-track); border-radius: 99px; overflow: hidden; }
+.mini-fill { height: 100%; border-radius: 99px; }
+.fill-green { background: var(--n1); }
+.fill-red { background: var(--n4); }
+.mini-pct { font-size: 12px; font-weight: 700; min-width: 34px; text-align: right; }
+
+/* ── DETAIL BTN ── */
+.btn-detail {
+  padding: 7px 12px; border-radius: 7px; border: 1px solid var(--line-2);
+  background: #fff; font-size: 12px; font-weight: 700; color: var(--ink-2);
+  cursor: pointer; display: flex; align-items: center; gap: 5px; transition: all 0.15s;
+}
+.btn-detail:hover { background: #1c1c2e; color: #fff; border-color: #1c1c2e; }
+.btn-detail svg { width: 12px; height: 12px; }
+
+/* ── DETAIL SCREEN ── */
+.detail-card {
+  background: #fff; border: 1px solid var(--line);
+  border-radius: 14px; overflow: hidden; box-shadow: var(--shadow);
+  margin-bottom: 16px;
+}
+.card-main {
+  display: grid;
+  grid-template-columns: 56px 220px 1fr auto;
+  align-items: center;
+  min-height: 88px;
+}
+.col-rank {
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  padding: 20px 10px; border-right: 1px solid var(--line);
+  align-self: stretch; background: #f1f3f5; gap: 6px; text-align: center;
+}
+.rank-num { font-family: 'DM Serif Display', serif; font-size: 28px; line-height: 1; color: var(--ink-2); }
+.col-id {
+  padding: 20px; border-right: 1px solid var(--line);
+  align-self: stretch; display: flex; flex-direction: column; justify-content: center;
+}
+.unidade-nome { font-size: 18px; font-weight: 700; color: var(--ink); line-height: 1.2; }
+.unidade-code { font-size: 13px; color: var(--ink-4); margin-top: 4px; }
+
+.col-metrics {
+  display: flex; align-items: stretch;
+  border-right: 1px solid var(--line); align-self: stretch;
+}
+.metric-group {
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  padding: 16px 18px; border-right: 1px solid var(--line);
+  min-width: 88px; flex: 1; gap: 3px;
+}
+.metric-group:last-child { border-right: none; }
+.metric-group.is-total { background: #e8f5e9; }
+.metric-group.is-total .mg-val { color: var(--n1); }
+.metric-group.is-total-nok { background: #ffebee; }
+.metric-group.is-total-nok .mg-val { color: var(--n4); }
+.col-metrics-sep { width: 2px; background: var(--line-2); align-self: stretch; flex-shrink: 0; }
+.mg-label { font-size: 11px; font-weight: 800; letter-spacing: 0.5px; text-transform: uppercase; color: var(--ink-3); white-space: nowrap; margin-bottom: 3px; }
+.mg-val { font-size: 24px; font-weight: 700; color: var(--ink); line-height: 1; }
+
+.col-right {
+  display: flex; align-items: center;
+  padding: 14px 22px; gap: 22px; align-self: stretch; min-width: 360px;
+}
+.progress-block { flex: 1; display: flex; flex-direction: column; gap: 10px; }
+.progress-row { display: flex; flex-direction: column; gap: 4px; }
+.progress-label-row { display: flex; justify-content: space-between; align-items: center; }
+.prog-label { font-size: 10px; font-weight: 800; letter-spacing: 0.6px; text-transform: uppercase; color: var(--ink-4); }
+.prog-pct { font-size: 13px; font-weight: 800; color: var(--ink-2); }
+.prog-track { height: 6px; border-radius: 99px; background: var(--bar-track); overflow: hidden; }
+.prog-fill { height: 100%; border-radius: 99px; transition: width 0.6s cubic-bezier(.4,0,.2,1); }
+
+.actions-col { display: flex; flex-direction: column; gap: 8px; flex-shrink: 0; }
+.btn-card {
+  display: flex; align-items: center; gap: 7px;
+  padding: 8px 16px; border: 1px solid var(--btn-border);
+  border-radius: 8px; background: #fff;
+  color: var(--btn-text); font-size: 13px; font-weight: 600;
+  cursor: pointer; font-family: 'DM Sans', sans-serif;
+  white-space: nowrap; transition: all 0.15s; min-width: 110px;
+}
+.btn-card:hover { background: #f1f3f5; border-color: #888; }
+.btn-card.active { background: #1c1c2e; border-color: #1c1c2e; color: #fff; }
+.btn-card svg { width: 14px; height: 14px; flex-shrink: 0; opacity: 0.6; }
+.btn-card.active svg { opacity: 1; }
+
+/* ── PANELS ── */
+.panel { display: none; }
+.panel.open { display: block; }
+.panel-body {
+  padding: 24px 28px; border-top: 1px solid var(--line); background: #f8f9fa;
+}
+.panel-title {
+  font-family: 'DM Serif Display', serif;
+  font-size: 17px; color: var(--ink); margin-bottom: 16px;
+  padding-bottom: 10px; border-bottom: 1px solid var(--line);
+}
+
+/* ── TABS (categorias) ── */
+.cat-tabs { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 16px; }
+.cat-tab {
+  padding: 7px 16px; border-radius: 99px; border: 1px solid var(--line-2);
+  background: #fff; font-size: 13px; font-weight: 700; color: var(--ink-3);
+  cursor: pointer; transition: all .15s; font-family: 'DM Sans', sans-serif;
+}
+.cat-tab.on { background: var(--ink); border-color: var(--ink); color: #fff; }
+
+/* Itens select */
+.item-row { display: flex; align-items: center; gap: 12px; margin-bottom: 20px; }
+.item-lbl { font-size: 11px; font-weight: 800; text-transform: uppercase; color: var(--ink-4); white-space: nowrap; }
+.item-select {
+  padding: 8px 14px; border-radius: 8px; border: 1px solid var(--line-2);
+  background: #fff; font-size: 14px; font-weight: 600; color: var(--ink-2);
+  cursor: pointer; min-width: 280px; font-family: 'DM Sans', sans-serif;
+}
+
+/* Vals grid */
+.vals-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 20px; }
+.val-card {
+  background: #fff; border: 1px solid var(--line); border-radius: 10px;
+  padding: 20px 16px; text-align: center;
+}
+.val-lbl { font-size: 11px; font-weight: 800; text-transform: uppercase; color: var(--ink-4); margin-bottom: 6px; }
+.val-num { font-family: 'DM Serif Display', serif; font-size: 42px; color: var(--ink); line-height: 1; }
+
+/* Chart wrapper */
+.chart-wrap {
+  position: relative; width: 100%; background: #fff;
+  border: 1px solid var(--line); border-radius: 12px;
+  padding: 20px; margin-bottom: 0;
+  box-shadow: var(--shadow);
+}
+.chart-legend {
+  display: flex; gap: 24px; margin-top: 12px; padding-top: 12px;
+  border-top: 1px solid var(--line); flex-wrap: wrap;
+}
+.legend-item { display: flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 600; color: var(--ink-3); }
+.legend-dot { width: 12px; height: 12px; border-radius: 3px; flex-shrink: 0; }
+
+/* Bottom legend bar */
+.legend-bar {
+  display: flex; align-items: center; gap: 24px; flex-wrap: wrap;
+  padding: 10px 16px; background: #fff;
+  border: 1px solid var(--line); border-radius: 10px;
+  font-size: 13px; color: var(--ink-3); margin-top: 16px;
+}
+.legend-bar .legend-item { font-weight: 600; }
+.legend-sep { width: 1px; height: 16px; background: var(--line-2); }
+
+/* Bottom action banner */
+.bottom-bar { margin-top: 20px; display: flex; gap: 14px; flex-wrap: wrap; }
+.level-legend {
+  flex: 1; min-width: 240px; background: #fff;
+  border: 1px solid var(--line); border-radius: 12px; padding: 16px 20px; box-shadow: var(--shadow);
+}
+.level-legend-title { font-size: 11px; font-weight: 800; letter-spacing: 0.6px; text-transform: uppercase; color: var(--ink-3); margin-bottom: 12px; }
+.level-items { display: flex; flex-direction: column; gap: 12px; }
+.level-item-row { display: flex; align-items: center; gap: 8px; font-size: 14px; color: var(--ink-2); font-weight: 600; }
+.level-dot { width: 26px; height: 26px; border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 800; flex-shrink: 0; }
+.action-banner {
+  flex: 2; min-width: 260px; background: #fff8f4; border: 1px solid #f0d8c8;
+  border-radius: 12px; padding: 16px 20px; display: flex; align-items: center; gap: 14px;
+}
+.action-icon { width: 38px; height: 38px; border-radius: 9px; background: #e8924a; display: flex; align-items: center; justify-content: center; font-size: 17px; flex-shrink: 0; }
+.action-title { font-size: 14px; font-weight: 700; color: var(--ink); margin-bottom: 3px; }
+.action-desc { font-size: 13px; color: var(--ink-3); line-height: 1.4; font-weight: 600; }
+
+.loading { padding: 60px; text-align: center; font-size: 16px; font-weight: 600; color: var(--ink-4); }
+
+/* Screens */
+.home-screen, .detail-screen { display: none; }
+.home-screen.active, .detail-screen.active { display: block; }
+
+@media (max-width: 1024px) {
+  .ht-head, .ht-row { grid-template-columns: 60px 180px 1fr 1fr 140px 90px 110px; }
+  .ht-th, .ht-td { font-size: 12px; padding: 12px 6px; }
+  .vals-grid { grid-template-columns: repeat(2,1fr); }
+}
+</style>
 </head>
 <body>
-  <div id="conteudo">A carregar...</div>
 
-  <script src="script.js"></script>
+<header class="header">
+  <div class="header-left">
+    <button class="btn-back" id="btn-back" onclick="goHome()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+      Voltar
+    </button>
+    <div class="header-icon">
+      <svg viewBox="0 0 24 24"><rect x="3" y="13" width="4" height="8" rx="1"/><rect x="10" y="9" width="4" height="12" rx="1"/><rect x="17" y="5" width="4" height="16" rx="1"/></svg>
+    </div>
+    <div>
+      <div class="header-title" id="header-title">Auditorias de Segurança Alimentar</div>
+      <div class="header-subtitle" id="sub-info">A carregar…</div>
+    </div>
+  </div>
+</header>
+
+<main class="main">
+  <div id="home-screen" class="home-screen">
+    <div class="loading">A carregar dados…</div>
+  </div>
+  <div id="detail-screen" class="detail-screen">
+    <div id="detail-app"></div>
+  </div>
+</main>
+
+<script>
+var _unidades = [];
+var _activeFilter = 'all';
+var _chartInstance = null;
+var _currentUnidadeIdx = null;
+var _currentCategoriaIdx = 0;
+var _currentItemIdx = 0;
+var _panelS = {};
+var _catCharts = {};
+
+function fmt(n) { return Number(n||0).toLocaleString('pt-PT'); }
+function pillCls(nivel) {
+  if (!nivel) return 'pill-n1';
+  var n = String(nivel).toUpperCase();
+  return n === 'N1' ? 'pill-n1' : n === 'N2' ? 'pill-n2' : n === 'N3' ? 'pill-n3' : 'pill-n4';
+}
+function svgArrow() {
+  return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>';
+}
+function svgLayers() {
+  return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>';
+}
+
+/* ── Load ── */
+fetch('dados.json?t=' + Date.now())
+  .then(function(r) { return r.json(); })
+  .then(function(json) { processData(json); })
+  .catch(function() {
+    fetch('Dados.json?t=' + Date.now())
+      .then(function(r) { return r.json(); })
+      .then(function(json) { processData(json); })
+      .catch(function(e) {
+        document.getElementById('home-screen').innerHTML = '<div class="loading" style="color:#b83232">Erro ao carregar dados. Verifique se o ficheiro dados.json existe.</div>';
+        document.getElementById('home-screen').classList.add('active');
+      });
+  });
+
+function processData(json) {
+  _unidades = json.unidades || [];
+  document.getElementById('sub-info').textContent = _unidades.length + ' unidades';
+  renderHome();
+}
+
+/* ── Navigation ── */
+function goHome() {
+  document.getElementById('home-screen').classList.add('active');
+  document.getElementById('detail-screen').classList.remove('active');
+  document.getElementById('btn-back').classList.remove('visible');
+  document.getElementById('header-title').textContent = 'Auditorias de Segurança Alimentar';
+  document.getElementById('sub-info').textContent = _unidades.length + ' unidades';
+}
+
+function goDetail(idx) {
+  _currentUnidadeIdx = idx;
+  _currentCategoriaIdx = 0;
+  _currentItemIdx = 0;
+  _panelS = {};
+  document.getElementById('home-screen').classList.remove('active');
+  document.getElementById('detail-screen').classList.add('active');
+  document.getElementById('btn-back').classList.add('visible');
+  var u = _unidades[idx];
+  document.getElementById('header-title').textContent = u.nome;
+  document.getElementById('sub-info').textContent = 'Conformidade: ' + (u.taxa || 0) + '% · ' + (u.nivel || '—');
+  renderDetail(idx);
+  window.scrollTo(0, 0);
+}
+
+/* ── HOME ── */
+function renderHome() {
+  var unidades = _unidades;
+  var n1 = unidades.filter(function(u){ return (u.nivel||'').toUpperCase()==='N1'; }).length;
+  var n2 = unidades.filter(function(u){ return (u.nivel||'').toUpperCase()==='N2'; }).length;
+  var n3 = unidades.filter(function(u){ return (u.nivel||'').toUpperCase()==='N3'; }).length;
+  var n4 = unidades.filter(function(u){ return (u.nivel||'').toUpperCase()==='N4'; }).length;
+
+  var html = '';
+
+  /* Stats */
+  html += '<div class="home-stats">';
+  html += statCard('Total Unidades', unidades.length, 'Auditorias ativas', '');
+  html += statCard('Nível 1 (Excelente)', n1, '≥95% conformidade', 'n1');
+  html += statCard('Nível 2 (Bom)', n2, '80-94% conformidade', 'n2');
+  html += statCard('Nível 3 (Regular)', n3, '60-79% conformidade', 'n3');
+  html += statCard('Nível 4 (Crítico)', n4, '<60% conformidade', 'n4');
+  html += '</div>';
+
+  /* Filter bar */
+  html += '<div class="filter-bar">';
+  html += '<span class="filter-label">Mostrar:</span>';
+  html += '<button class="filter-btn active" data-filter="all" onclick="setFilter(\'all\')">Todas ('+unidades.length+')</button>';
+  html += '<div class="filter-divider"></div>';
+  html += '<button class="filter-btn" data-filter="n1" onclick="setFilter(\'n1\')">🟢 N1 ('+n1+')</button>';
+  html += '<button class="filter-btn" data-filter="n2" onclick="setFilter(\'n2\')">🟡 N2 ('+n2+')</button>';
+  html += '<button class="filter-btn" data-filter="n3" onclick="setFilter(\'n3\')">🟠 N3 ('+n3+')</button>';
+  html += '<button class="filter-btn" data-filter="n4" onclick="setFilter(\'n4\')">🔴 N4 ('+n4+')</button>';
+  html += '</div>';
+
+  /* Table */
+  html += '<div class="home-table">';
+  html += '<div class="ht-head">';
+  html += '<div class="ht-th">#</div>';
+  html += '<div class="ht-th left">Unidade</div>';
+  html += '<div class="ht-th">Total Itens</div>';
+  html += '<div class="ht-th">NOK</div>';
+  html += '<div class="ht-th">Conformidade</div>';
+  html += '<div class="ht-th">Nível</div>';
+  html += '<div class="ht-th">Detalhe</div>';
+  html += '</div>';
+  html += '<div id="ht-body"></div>';
+  html += '</div>';
+
+  /* Bottom */
+  html += '<div class="bottom-bar">';
+  html += '<div class="level-legend"><div class="level-legend-title">Classificação de Conformidade</div><div class="level-items">';
+  html += '<div class="level-item-row"><div class="level-dot pill-n1">N1</div><span>≥95% conformidade (Excelente)</span></div>';
+  html += '<div class="level-item-row"><div class="level-dot pill-n2">N2</div><span>80-94% conformidade (Bom)</span></div>';
+  html += '<div class="level-item-row"><div class="level-dot pill-n3">N3</div><span>60-79% conformidade (Regular)</span></div>';
+  html += '<div class="level-item-row"><div class="level-dot pill-n4">N4</div><span><60% conformidade (Crítico)</span></div>';
+  html += '</div></div>';
+  html += '<div class="action-banner"><div class="action-icon">⚠</div><div><div class="action-title">Ação Recomendada</div><div class="action-desc">Contactar urgentemente responsáveis das unidades N4 e N3. Clique em "Detalhe" para ver categorias e itens auditados.</div></div></div>';
+  html += '</div>';
+
+  document.getElementById('home-screen').innerHTML = html;
+  document.getElementById('home-screen').classList.add('active');
+  renderHomeTable();
+}
+
+function statCard(label, val, sub, nivelClass) {
+  return '<div class="stat-card '+(nivelClass||'')+'">'
+    +'<div class="stat-card-label">'+label+'</div>'
+    +'<div class="stat-card-val">'+val+'</div>'
+    +'<div class="stat-card-sub">'+sub+'</div>'
+    +'</div>';
+}
+
+function setFilter(f) {
+  _activeFilter = f;
+  document.querySelectorAll('.filter-btn').forEach(function(b) {
+    b.classList.toggle('active', b.dataset.filter === f);
+  });
+  renderHomeTable();
+}
+
+function renderHomeTable() {
+  var unidades = _unidades;
+  var f = _activeFilter;
+  var filtered = unidades.filter(function(u) {
+    var nivel = (u.nivel||'').toUpperCase();
+    if (f === 'n1') return nivel === 'N1';
+    if (f === 'n2') return nivel === 'N2';
+    if (f === 'n3') return nivel === 'N3';
+    if (f === 'n4') return nivel === 'N4';
+    return true;
+  });
+
+  var html = '';
+  if (filtered.length === 0) {
+    html = '<div style="padding:32px;text-align:center;color:var(--ink-4);font-size:13px">Sem unidades para este filtro.</div>';
+  } else {
+    filtered.forEach(function(u) {
+      var ui = unidades.indexOf(u);
+      var pc = pillCls(u.nivel);
+      var t = u.totaisGlobais || {};
+      var totalItens = t.totalItens || 0;
+      var totalOK = t.totalOK || 0;
+      var totalNOK = t.totalNOK || 0;
+      var taxa = u.taxa || 0;
+
+      html += '<div class="ht-row" onclick="goDetail('+ui+')">';
+
+      /* rank */
+      html += '<div class="ht-td rank-td" style="flex-direction:column;gap:6px;align-items:center;background:#f1f3f5">';
+      html += '<div style="font-family:\'DM Serif Display\',serif;font-size:26px;font-weight:400;color:var(--ink-2);line-height:1">'+(ui+1)+'</div>';
+      html += '<div class="rank-pill '+pc+'">'+(u.nivel||'—')+'</div>';
+      html += '</div>';
+
+      /* identity */
+      html += '<div class="ht-td left" style="flex-direction:column;align-items:flex-start;gap:3px">';
+      html += '<div style="font-weight:700;font-size:15px">'+u.nome+'</div>';
+      html += '<div style="font-size:12px;color:var(--ink-4)">'+u.localizacao+'</div>';
+      html += '</div>';
+
+      /* total itens */
+      html += '<div class="ht-td" style="flex-direction:column;gap:3px">';
+      html += '<div style="font-size:12px;font-weight:800;letter-spacing:0.5px;text-transform:uppercase;color:var(--ink-4)">Total</div>';
+      html += '<div style="font-size:13px;color:var(--ink-3)">'+fmt(totalItens)+' itens</div>';
+      html += '</div>';
+
+      /* NOK */
+      html += '<div class="ht-td" style="flex-direction:column;gap:3px">';
+      html += '<div style="font-size:12px;font-weight:800;letter-spacing:0.5px;text-transform:uppercase;color:var(--ink-4)">Não Conformes</div>';
+      html += '<div style="font-size:13px;color:var(--n4);font-weight:700">'+fmt(totalNOK)+' NOK</div>';
+      html += '</div>';
+
+      /* progress */
+      html += '<div class="ht-td"><div class="mini-prog">';
+      html += '<div class="mini-row">'
+        +'<span style="font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:0.4px;color:var(--ink-4);min-width:60px">Conformidade</span>'
+        +'<div class="mini-track"><div class="mini-fill fill-green" style="width:'+taxa+'%"></div></div>'
+        +'<span class="mini-pct" style="color:var(--n1)">'+taxa+'%</span>'
+        +'</div>';
+      html += '<div class="mini-row">'
+        +'<span style="font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:0.4px;color:var(--ink-4);min-width:60px">Não Conforme</span>'
+        +'<div class="mini-track"><div class="mini-fill fill-red" style="width:'+(100-taxa)+'%"></div></div>'
+        +'<span class="mini-pct" style="color:var(--n4)">'+(100-taxa)+'%</span>'
+        +'</div>';
+      html += '</div></div>';
+
+      /* nivel */
+      html += '<div class="ht-td">';
+      html += '<span class="rank-pill '+pc+'">'+(u.nivel||'—')+'</span>';
+      html += '</div>';
+
+      /* detail btn */
+      html += '<div class="ht-td" onclick="event.stopPropagation()">';
+      html += '<button class="btn-detail" onclick="goDetail('+ui+')">Detalhe '+svgArrow()+'</button>';
+      html += '</div>';
+
+      html += '</div>';
+    });
+  }
+  document.getElementById('ht-body').innerHTML = html;
+}
+
+/* ── DETAIL ── */
+function renderDetail(idx) {
+  var u = _unidades[idx];
+  if (!u) return;
+  var t = u.totaisGlobais || {};
+  var totalItens = t.totalItens || 0;
+  var totalOK = t.totalOK || 0;
+  var totalNOK = t.totalNOK || 0;
+  var taxa = u.taxa || 0;
+  var pc = pillCls(u.nivel);
+
+  var html = '<div class="detail-card">';
+  html += '<div class="card-main">';
+
+  /* rank */
+  html += '<div class="col-rank"><div class="rank-num">'+(idx+1)+'</div><div class="rank-pill '+pc+'">'+(u.nivel||'—')+'</div></div>';
+
+  /* identity */
+  html += '<div class="col-id"><div class="unidade-nome">'+u.nome+'</div><div class="unidade-code">Conformidade: '+(taxa)+'%</div></div>';
+
+  /* metrics */
+  html += '<div class="col-metrics">';
+  var gOK = [{label:'Total Itens',val:fmt(totalItens),cls:'is-total'},{label:'OK',val:fmt(totalOK),cls:''},{label:'NOK',val:fmt(totalNOK),cls:'is-total-nok'}];
+  gOK.forEach(function(g){ html += '<div class="metric-group '+g.cls+'"><div class="mg-label">'+g.label+'</div><div class="mg-val">'+g.val+'</div></div>'; });
+  html += '</div>';
+
+  /* right: progress + actions */
+  html += '<div class="col-right">';
+  html += '<div class="progress-block">';
+  html += '<div class="progress-row"><div class="progress-label-row"><span class="prog-label">Conformidade</span><span class="prog-pct">'+taxa+'%</span></div><div class="prog-track"><div class="prog-fill fill-green" style="width:'+taxa+'%"></div></div></div>';
+  html += '<div class="progress-row"><div class="progress-label-row"><span class="prog-label">Não Conforme</span><span class="prog-pct">'+(100-taxa)+'%</span></div><div class="prog-track"><div class="prog-fill fill-red" style="width:'+(100-taxa)+'%"></div></div></div>';
+  html += '</div>';
+  html += '<div class="actions-col">';
+  html += '<button class="btn-card" id="bs-'+idx+'" onclick="toggleCategorias('+idx+')">'+svgLayers()+'Categorias</button>';
+  html += '</div>';
+  html += '</div>';
+
+  html += '</div>';
+
+  /* Categorias panel */
+  html += '<div class="panel" id="ps-'+idx+'"><div class="panel-body">';
+  if (u.categorias && u.categorias.length > 0) {
+    html += '<div class="panel-title">Categorias · '+u.nome+'</div>';
+    /* Categoria tabs */
+    html += '<div class="cat-tabs" id="cat-tabs-'+idx+'">';
+    u.categorias.forEach(function(c, ci) {
+      html += '<button class="cat-tab'+(ci===0?' on':'')+'" onclick="selectCategoria('+idx+','+ci+')">'+c.categoria+'</button>';
+    });
+    html += '</div>';
+    /* Itens content */
+    html += '<div id="itens-wrap-'+idx+'">'+buildItensHTML(u, 0, 0, idx)+'</div>';
+  } else {
+    html += '<p style="color:var(--ink-4);font-size:14px">Sem categorias disponíveis para esta unidade.</p>';
+  }
+  html += '</div></div>';
+
+  html += '</div>';
+
+  /* Legend */
+  html += '<div class="legend-bar">';
+  html += '<div class="legend-item"><div class="legend-dot" style="background:var(--n1)"></div><span style="font-weight:700">OK</span> = Conforme</div>';
+  html += '<div class="legend-sep"></div>';
+  html += '<div class="legend-item"><div class="legend-dot" style="background:var(--n4)"></div><span style="font-weight:700">NOK</span> = Não Conforme</div>';
+  html += '</div>';
+
+  document.getElementById('detail-app').innerHTML = html;
+}
+
+function toggleCategorias(idx) {
+  _panelS[idx] = !_panelS[idx];
+  var p = document.getElementById('ps-'+idx);
+  var b = document.getElementById('bs-'+idx);
+  if (p) p.classList.toggle('open', _panelS[idx]);
+  if (b) b.classList.toggle('active', _panelS[idx]);
+  if (_panelS[idx]) {
+    setTimeout(function() { buildItensChart(idx, _currentCategoriaIdx, _currentItemIdx); }, 150);
+  }
+}
+
+function selectCategoria(unidadeIdx, catIdx) {
+  _currentCategoriaIdx = catIdx;
+  _currentItemIdx = 0;
+  var tabs = document.querySelectorAll('#cat-tabs-'+unidadeIdx+' .cat-tab');
+  tabs.forEach(function(t, i) { t.classList.toggle('on', i === catIdx); });
+  var wrap = document.getElementById('itens-wrap-'+unidadeIdx);
+  if (wrap) {
+    if (_catCharts['cat-'+unidadeIdx]) { _catCharts['cat-'+unidadeIdx].destroy(); delete _catCharts['cat-'+unidadeIdx]; }
+    wrap.innerHTML = buildItensHTML(_unidades[unidadeIdx], catIdx, 0, unidadeIdx);
+    setTimeout(function() { buildItensChart(unidadeIdx, catIdx, 0); }, 150);
+  }
+}
+
+function selectItem(unidadeIdx, val) {
+  _currentItemIdx = Number(val);
+  var u = _unidades[unidadeIdx];
+  var wrap = document.getElementById('itens-wrap-'+unidadeIdx);
+  if (wrap) {
+    if (_catCharts['cat-'+unidadeIdx]) { _catCharts['cat-'+unidadeIdx].destroy(); delete _catCharts['cat-'+unidadeIdx]; }
+    wrap.innerHTML = buildItensHTML(u, _currentCategoriaIdx, _currentItemIdx, unidadeIdx);
+    setTimeout(function() { buildItensChart(unidadeIdx, _currentCategoriaIdx, _currentItemIdx); }, 150);
+  }
+}
+
+function buildItensHTML(u, catIdx, itemIdx, unidadeIdx) {
+  var cat = u.categorias && u.categorias[catIdx];
+  if (!cat || !cat.itens || cat.itens.length === 0) return '<p style="color:var(--ink-4);font-size:14px">Sem itens nesta categoria.</p>';
+  var item = cat.itens[itemIdx] || cat.itens[0];
+
+  var html = '<div class="item-row">';
+  html += '<span class="item-lbl">Item:</span>';
+  html += '<select class="item-select" onchange="selectItem('+unidadeIdx+', this.value)">';
+  cat.itens.forEach(function(it, i) {
+    html += '<option value="'+i+'"'+(i===itemIdx?' selected':'')+'>'+it.codigo_item+' - '+it.descricao+'</option>';
+  });
+  html += '</select></div>';
+
+  html += '<div class="vals-grid">';
+  html += valCard('Estado', item.estado, item.estado === 'OK' ? 'color:var(--n1)' : 'color:var(--n4)');
+  html += valCard('Status Ação', item.status_acao, item.status_acao === 'Concluida' ? 'color:var(--n1)' : item.status_acao === 'Em_Atraso' ? 'color:var(--n4)' : 'color:var(--n3)');
+  html += valCard('Dias Atraso', fmt(item.dias_atraso), item.dias_atraso > 0 ? 'color:var(--n4)' : 'color:var(--n1)');
+  html += valCard('Responsável', item.responsavel_acao || 'N/A', '');
+  html += '</div>';
+
+  if (item.medida_corretiva) {
+    html += '<div style="background:#fff; border:1px solid var(--line); border-radius:10px; padding:16px; margin-bottom:16px;">';
+    html += '<div style="font-size:11px;font-weight:800;text-transform:uppercase;color:var(--ink-4);margin-bottom:6px">Medida Corretiva</div>';
+    html += '<div style="font-size:14px;color:var(--ink);font-weight:600">'+item.medida_corretiva+'</div>';
+    if (item.prazo) {
+      html += '<div style="font-size:12px;color:var(--ink-4);margin-top:4px">Prazo: '+item.prazo+'</div>';
+    }
+    html += '</div>';
+  }
+
+  html += '<div class="chart-wrap">';
+  html += '<div style="font-size:13px;font-weight:700;color:var(--ink-3);margin-bottom:14px">📊 Distribuição de Conformidade por Categoria</div>';
+  html += '<canvas id="catChart-'+unidadeIdx+'" style="max-height:200px"></canvas>';
+  html += '<div class="chart-legend">';
+  html += '<div class="legend-item"><div class="legend-dot" style="background:var(--n1)"></div>Conforme (OK)</div>';
+  html += '<div class="legend-item"><div class="legend-dot" style="background:var(--n4)"></div>Não Conforme (NOK)</div>';
+  html += '</div></div>';
+
+  return html;
+}
+
+function valCard(label, val, style) {
+  return '<div class="val-card"><div class="val-lbl">'+label+'</div><div class="val-num" style="'+style+'">'+val+'</div></div>';
+}
+
+function buildItensChart(unidadeIdx, catIdx, itemIdx) {
+  var u = _unidades[unidadeIdx];
+  if (!u || !u.categorias) return;
+  var cat = u.categorias[catIdx];
+  if (!cat || !cat.itens) return;
+
+  var canvas = document.getElementById('catChart-'+unidadeIdx);
+  if (!canvas) return;
+
+  if (_catCharts['cat-'+unidadeIdx]) { _catCharts['cat-'+unidadeIdx].destroy(); delete _catCharts['cat-'+unidadeIdx]; }
+
+  var okCount = cat.totaisCategoria.ok || 0;
+  var nokCount = cat.totaisCategoria.nok || 0;
+
+  _catCharts['cat-'+unidadeIdx] = new Chart(canvas.getContext('2d'), {
+    type: 'bar',
+    plugins: [ChartDataLabels],
+    data: {
+      labels: ['Conformidade'],
+      datasets: [
+        {
+          label: 'OK',
+          data: [okCount],
+          backgroundColor: 'rgba(112,173,71,.8)',
+          borderRadius: 4,
+          borderWidth: 0,
+          barPercentage: 0.6,
+          categoryPercentage: 0.7
+        },
+        {
+          label: 'NOK',
+          data: [nokCount],
+          backgroundColor: 'rgba(192,0,0,.85)',
+          borderRadius: 4,
+          borderWidth: 0,
+          barPercentage: 0.6,
+          categoryPercentage: 0.7
+        }
+      ]
+    },
+    options: {
+      indexAxis: 'y',
+      responsive: true,
+      maintainAspectRatio: true,
+      layout: { padding: { right: 50, top: 8, bottom: 4, left: 4 } },
+      plugins: {
+        legend: { display: false },
+        datalabels: {
+          anchor: 'end',
+          align: 'end',
+          formatter: function(v) { return v; },
+          font: { size: 14, weight: '700', family: 'DM Sans' },
+          color: '#1a1a1a',
+          offset: 4
+        },
+        tooltip: {
+          callbacks: {
+            label: function(c) { return ' ' + c.dataset.label + ': ' + c.parsed.x; }
+          }
+        }
+      },
+      scales: {
+        x: {
+          beginAtZero: true,
+          ticks: { font: { size: 12, weight: '600' }, stepSize: 1 },
+          grid: { color: 'rgba(0,0,0,.06)' },
+          title: { display: true, text: 'Nº de Itens', color: '#777', font: { size: 12, weight: '700' } }
+        },
+        y: {
+          ticks: { font: { size: 14, weight: '700', family: 'DM Sans' }, color: '#1a1a1a' },
+          grid: { display: false }
+        }
+      }
+    }
+  });
+}
+</script>
 </body>
 </html>
-
