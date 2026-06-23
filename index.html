@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Auditorias de Seguranca Alimentar</title>
+<title>Auditorias de Segurança Alimentar</title>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,300&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/chartjs-plugin-datalabels/2.1.0/chartjs-plugin-datalabels.min.js"></script>
@@ -18,8 +18,12 @@
   --paper-3: #f1f3f5;
   --line: #d1d1d1;
   --line-2: #b1b1b1;
-  --bar-blue: #2b2fd8;
-  --bar-orange: #d8722a;
+  --n1: #ff2222; --n1-bg: #fff2f2;
+  --n2: #ff7b00; --n2-bg: #fff3e6;
+  --n3: #ffcc00; --n3-bg: #fffbe6;
+  --n4: #70AD47; --n4-bg: #f0f8ea;
+  --bar-green: #70AD47;
+  --bar-red: #ff2222;
   --bar-track: #e4e4e8;
   --btn-border: #b1b1b1;
   --btn-text: #222;
@@ -34,7 +38,7 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
-/* -- HEADER -- */
+/* ── HEADER ── */
 .header {
   position: sticky; top: 0; z-index: 200;
   background: rgba(255,255,255,.98);
@@ -65,13 +69,13 @@ body {
 .btn-back.visible { display: flex; }
 .btn-back svg { width: 14px; height: 14px; }
 
-/* -- MAIN -- */
+/* ── MAIN ── */
 .main { max-width: 1320px; margin: 0 auto; padding: 28px 24px 64px; }
 
-/* -- STAT CARDS -- */
+/* ── STAT CARDS ── */
 .home-stats {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
   gap: 12px;
   margin-bottom: 24px;
 }
@@ -85,8 +89,12 @@ body {
 .stat-card-label { font-size: 12px; font-weight: 800; letter-spacing: 0.7px; text-transform: uppercase; color: var(--ink-4); }
 .stat-card-val { font-family: 'DM Serif Display', serif; font-size: 42px; line-height: 1; color: var(--ink); }
 .stat-card-sub { font-size: 13px; color: var(--ink-4); margin-top: 2px; font-weight: 600; }
+.stat-card.accent-red    .stat-card-val { color: var(--n1); }
+.stat-card.accent-amber  .stat-card-val { color: var(--n2); }
+.stat-card.accent-yellow .stat-card-val { color: var(--n3); }
+.stat-card.accent-green  .stat-card-val { color: var(--n4); }
 
-/* -- FILTER BAR -- */
+/* ── FILTER BAR ── */
 .filter-bar {
   display: flex; align-items: center; gap: 8px;
   margin-bottom: 16px; flex-wrap: wrap;
@@ -103,14 +111,14 @@ body {
 .filter-btn.active { background: var(--ink); border-color: var(--ink); color: #fff; }
 .filter-divider { width: 1px; height: 20px; background: var(--line-2); }
 
-/* -- HOME TABLE -- */
+/* ── HOME TABLE ── */
 .home-table {
   background: #fff; border: 1px solid var(--line);
   border-radius: 14px; overflow: hidden; box-shadow: var(--shadow);
 }
 .ht-head {
   display: grid;
-  grid-template-columns: 76px 220px 1fr 1fr 180px 136px;
+  grid-template-columns: 76px 220px 1fr 1fr 180px 110px 136px;
   background: #f1f3f5; border-bottom: 1px solid var(--line);
 }
 .ht-th {
@@ -124,7 +132,7 @@ body {
 
 .ht-row {
   display: grid;
-  grid-template-columns: 76px 220px 1fr 1fr 180px 136px;
+  grid-template-columns: 76px 220px 1fr 1fr 180px 110px 136px;
   border-bottom: 1px solid var(--line);
   transition: background 0.12s;
   cursor: pointer;
@@ -141,16 +149,26 @@ body {
 .ht-td.left { justify-content: flex-start; text-align: left; padding-left: 16px; }
 .rank-td { background: #f1f3f5; }
 
-/* -- PROGRESS MINI -- */
+/* ── PILLS ── */
+.rank-pill {
+  padding: 3px 10px; border-radius: 99px;
+  font-size: 12px; font-weight: 700; letter-spacing: 0.3px;
+  text-align: center;
+}
+.pill-alta   { background: var(--n4-bg); color: var(--n4); }
+.pill-media  { background: var(--n3-bg); color: #b8960a; }
+.pill-baixa  { background: var(--n1-bg); color: var(--n1); }
+
+/* ── PROGRESS MINI ── */
 .mini-prog { flex: 1; display: flex; flex-direction: column; gap: 8px; width: 100%; }
 .mini-row { display: flex; align-items: center; gap: 8px; }
 .mini-track { flex: 1; height: 6px; background: var(--bar-track); border-radius: 99px; overflow: hidden; }
 .mini-fill { height: 100%; border-radius: 99px; }
-.fill-green { background: #70AD47; }
-.fill-red { background: #ff2222; }
+.fill-green { background: var(--bar-green); }
+.fill-red   { background: var(--bar-red); }
 .mini-pct { font-size: 12px; font-weight: 700; min-width: 34px; text-align: right; }
 
-/* -- DETAIL BTN -- */
+/* ── DETAIL BTN ── */
 .btn-detail {
   padding: 7px 12px; border-radius: 7px; border: 1px solid var(--line-2);
   background: #fff; font-size: 12px; font-weight: 700; color: var(--ink-2);
@@ -159,7 +177,7 @@ body {
 .btn-detail:hover { background: #1c1c2e; color: #fff; border-color: #1c1c2e; }
 .btn-detail svg { width: 12px; height: 12px; }
 
-/* -- DETAIL SCREEN -- */
+/* ── DETAIL SCREEN ── */
 .detail-card {
   background: #fff; border: 1px solid var(--line);
   border-radius: 14px; overflow: hidden; box-shadow: var(--shadow);
@@ -194,11 +212,10 @@ body {
   min-width: 88px; flex: 1; gap: 3px;
 }
 .metric-group:last-child { border-right: none; }
-.metric-group.is-total { background: #e8f5e9; }
-.metric-group.is-total .mg-val { color: #70AD47; }
+.metric-group.is-total     { background: #e8f5e9; }
+.metric-group.is-total     .mg-val { color: var(--bar-green); }
 .metric-group.is-total-nok { background: #fff2f2; }
-.metric-group.is-total-nok .mg-val { color: #ff2222; }
-.col-metrics-sep { width: 2px; background: var(--line-2); align-self: stretch; flex-shrink: 0; }
+.metric-group.is-total-nok .mg-val { color: var(--bar-red); }
 .mg-label { font-size: 11px; font-weight: 800; letter-spacing: 0.5px; text-transform: uppercase; color: var(--ink-3); white-space: nowrap; margin-bottom: 3px; }
 .mg-val { font-size: 24px; font-weight: 700; color: var(--ink); line-height: 1; }
 
@@ -228,7 +245,7 @@ body {
 .btn-card svg { width: 14px; height: 14px; flex-shrink: 0; opacity: 0.6; }
 .btn-card.active svg { opacity: 1; }
 
-/* -- PANELS -- */
+/* ── PANELS ── */
 .panel { display: none; }
 .panel.open { display: block; }
 .panel-body {
@@ -240,7 +257,7 @@ body {
   padding-bottom: 10px; border-bottom: 1px solid var(--line);
 }
 
-/* -- TABS (categorias) -- */
+/* ── TABS (categorias) ── */
 .cat-tabs { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 16px; }
 .cat-tab {
   padding: 7px 16px; border-radius: 99px; border: 1px solid var(--line-2);
@@ -249,7 +266,7 @@ body {
 }
 .cat-tab.on { background: var(--ink); border-color: var(--ink); color: #fff; }
 
-/* Itens select */
+/* Item select */
 .item-row { display: flex; align-items: center; gap: 12px; margin-bottom: 20px; }
 .item-lbl { font-size: 11px; font-weight: 800; text-transform: uppercase; color: var(--ink-4); white-space: nowrap; }
 .item-select {
@@ -265,7 +282,7 @@ body {
   padding: 20px 16px; text-align: center;
 }
 .val-lbl { font-size: 11px; font-weight: 800; text-transform: uppercase; color: var(--ink-4); margin-bottom: 6px; }
-.val-num { font-family: 'DM Serif Display', serif; font-size: 42px; color: var(--ink); line-height: 1; }
+.val-num { font-family: 'DM Serif Display', serif; font-size: 38px; color: var(--ink); line-height: 1; }
 
 /* Chart wrapper */
 .chart-wrap {
@@ -316,12 +333,11 @@ body {
 .home-screen.active, .detail-screen.active { display: block; }
 
 @media (max-width: 1024px) {
-  .ht-head, .ht-row { grid-template-columns: 60px 180px 1fr 1fr 140px 110px; }
+  .ht-head, .ht-row { grid-template-columns: 60px 180px 1fr 1fr 140px 90px 110px; }
   .ht-th, .ht-td { font-size: 12px; padding: 12px 6px; }
   .vals-grid { grid-template-columns: repeat(2,1fr); }
 }
 </style>
-<base target="_blank">
 </head>
 <body>
 
@@ -335,15 +351,15 @@ body {
       <svg viewBox="0 0 24 24"><rect x="3" y="13" width="4" height="8" rx="1"/><rect x="10" y="9" width="4" height="12" rx="1"/><rect x="17" y="5" width="4" height="16" rx="1"/></svg>
     </div>
     <div>
-      <div class="header-title" id="header-title">Auditorias de Seguranca Alimentar</div>
-      <div class="header-subtitle" id="sub-info">A carregar...</div>
+      <div class="header-title" id="header-title">Auditorias de Segurança Alimentar</div>
+      <div class="header-subtitle" id="sub-info">A carregar…</div>
     </div>
   </div>
 </header>
 
 <main class="main">
   <div id="home-screen" class="home-screen">
-    <div class="loading">A carregar dados...</div>
+    <div class="loading">A carregar dados…</div>
   </div>
   <div id="detail-screen" class="detail-screen">
     <div id="detail-app"></div>
@@ -353,7 +369,6 @@ body {
 <script>
 var _unidades = [];
 var _activeFilter = 'all';
-var _chartInstance = null;
 var _currentUnidadeIdx = null;
 var _currentCategoriaIdx = 0;
 var _currentItemIdx = 0;
@@ -362,6 +377,18 @@ var _catCharts = {};
 
 function fmt(n) { return Number(n||0).toLocaleString('pt-PT'); }
 
+/* Determina pill de conformidade */
+function taxaPill(taxa) {
+  if (taxa >= 70) return 'pill-alta';
+  if (taxa >= 50) return 'pill-media';
+  return 'pill-baixa';
+}
+function taxaLabel(taxa) {
+  if (taxa >= 70) return 'Alta';
+  if (taxa >= 50) return 'Média';
+  return 'Baixa';
+}
+
 function svgArrow() {
   return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>';
 }
@@ -369,22 +396,44 @@ function svgLayers() {
   return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>';
 }
 
-/* -- CALCULATE REAL TOTALS (since data has 0s) -- */
+/* ── Cálculo de totais reais a partir das categorias ── */
 function calcUnidadeTotals(u) {
   var totalItens = 0, totalOK = 0, totalNOK = 0;
+  var acoesAbertas = 0, acoesAtraso = 0;
   if (u.categorias) {
     u.categorias.forEach(function(c) {
       var tc = c.totaisCategoria || {};
-      totalItens += tc.total || 0;
-      totalOK += tc.ok || 0;
-      totalNOK += tc.nok || 0;
+      totalItens   += tc.total || 0;
+      totalOK      += tc.ok   || 0;
+      totalNOK     += tc.nok  || 0;
+      acoesAbertas += tc.acoes_abertas || 0;
+      acoesAtraso  += tc.acoes_atraso  || 0;
     });
   }
   var taxa = totalItens > 0 ? Math.round((totalOK / totalItens) * 100) : 0;
-  return { totalItens: totalItens, totalOK: totalOK, totalNOK: totalNOK, taxa: taxa };
+  return { totalItens: totalItens, totalOK: totalOK, totalNOK: totalNOK,
+           acoesAbertas: acoesAbertas, acoesAtraso: acoesAtraso, taxa: taxa };
 }
 
-/* -- Load -- */
+/* ── Agrupamento de itens por código (sem duplicação visual) ──
+   Cada código único dentro de uma categoria aparece UMA vez no select,
+   mas mostramos o estado agregado (se algum NOK → NOK) e listamos todas
+   as ocorrências no detalhe. */
+function groupItemsByCode(itens) {
+  var map = {};
+  var order = [];
+  itens.forEach(function(item) {
+    var key = item.codigo_item;
+    if (!map[key]) {
+      map[key] = { codigo_item: item.codigo_item, descricao: item.descricao, ocorrencias: [] };
+      order.push(key);
+    }
+    map[key].ocorrencias.push(item);
+  });
+  return order.map(function(k) { return map[k]; });
+}
+
+/* ── Load ── */
 fetch('dados.json?t=' + Date.now())
   .then(function(r) { return r.json(); })
   .then(function(json) { processData(json); })
@@ -392,7 +441,7 @@ fetch('dados.json?t=' + Date.now())
     fetch('Dados.json?t=' + Date.now())
       .then(function(r) { return r.json(); })
       .then(function(json) { processData(json); })
-      .catch(function(e) {
+      .catch(function() {
         document.getElementById('home-screen').innerHTML = '<div class="loading" style="color:#b83232">Erro ao carregar dados. Verifique se o ficheiro dados.json existe.</div>';
         document.getElementById('home-screen').classList.add('active');
       });
@@ -401,20 +450,18 @@ fetch('dados.json?t=' + Date.now())
 function processData(json) {
   _unidades = json.unidades || [];
   _unidades.forEach(function(u) {
-    var t = calcUnidadeTotals(u);
-    u._calcTotals = t;
-    u._calcTaxa = t.taxa;
+    u._calc = calcUnidadeTotals(u);
   });
   document.getElementById('sub-info').textContent = _unidades.length + ' unidades';
   renderHome();
 }
 
-/* -- Navigation -- */
+/* ── Navigation ── */
 function goHome() {
   document.getElementById('home-screen').classList.add('active');
   document.getElementById('detail-screen').classList.remove('active');
   document.getElementById('btn-back').classList.remove('visible');
-  document.getElementById('header-title').textContent = 'Auditorias de Seguranca Alimentar';
+  document.getElementById('header-title').textContent = 'Auditorias de Segurança Alimentar';
   document.getElementById('sub-info').textContent = _unidades.length + ' unidades';
 }
 
@@ -427,65 +474,71 @@ function goDetail(idx) {
   document.getElementById('detail-screen').classList.add('active');
   document.getElementById('btn-back').classList.add('visible');
   var u = _unidades[idx];
-  var t = u._calcTotals || calcUnidadeTotals(u);
+  var t = u._calc;
   document.getElementById('header-title').textContent = u.nome;
-  document.getElementById('sub-info').textContent = 'Conformidade: ' + t.taxa + '% - ' + fmt(t.totalItens) + ' itens auditados';
+  document.getElementById('sub-info').textContent = 'Conformidade: ' + t.taxa + '% · ' + fmt(t.totalItens) + ' itens auditados';
   renderDetail(idx);
   window.scrollTo(0, 0);
 }
 
-/* -- HOME -- */
+/* ── HOME ── */
 function renderHome() {
   var unidades = _unidades;
-
   var totalItensAll = 0, totalOKAll = 0, totalNOKAll = 0;
   unidades.forEach(function(u) {
-    var t = u._calcTotals || calcUnidadeTotals(u);
-    totalItensAll += t.totalItens;
-    totalOKAll += t.totalOK;
-    totalNOKAll += t.totalNOK;
+    totalItensAll += u._calc.totalItens;
+    totalOKAll    += u._calc.totalOK;
+    totalNOKAll   += u._calc.totalNOK;
   });
   var taxaGlobal = totalItensAll > 0 ? Math.round((totalOKAll / totalItensAll) * 100) : 0;
 
-  var baixa = 0, media = 0, alta = 0;
-  unidades.forEach(function(u) {
-    var t = u._calcTotals || calcUnidadeTotals(u);
-    if (t.taxa < 50) baixa++;
-    else if (t.taxa < 70) media++;
-    else alta++;
-  });
+  var baixa = unidades.filter(function(u){ return u._calc.taxa < 50; }).length;
+  var media = unidades.filter(function(u){ return u._calc.taxa >= 50 && u._calc.taxa < 70; }).length;
+  var alta  = unidades.filter(function(u){ return u._calc.taxa >= 70; }).length;
 
   var html = '';
 
+  /* Stats */
   html += '<div class="home-stats">';
-  html += statCard('ITENS AUDITADOS', fmt(totalItensAll), 'Total em todas as unidades');
-  html += statCard('CONFORMES', fmt(totalOKAll), totalItensAll > 0 ? taxaGlobal + '% do total' : '0%');
-  html += statCard('NAO CONFORMES', fmt(totalNOKAll), totalItensAll > 0 ? (100 - taxaGlobal) + '% do total' : '0%');
+  html += statCard('Total Unidades', unidades.length, 'Em monitorização', '');
+  html += statCard('Itens Auditados', fmt(totalItensAll), 'Total global', '');
+  html += statCard('Conformes', fmt(totalOKAll), taxaGlobal + '% do total', 'accent-green');
+  html += statCard('Não Conformes', fmt(totalNOKAll), (100 - taxaGlobal) + '% do total', 'accent-red');
+  html += statCard('Conformidade Baixa', baixa, '< 50% conformidade', baixa > 0 ? 'accent-red' : '');
   html += '</div>';
 
+  /* Filter bar */
   html += '<div class="filter-bar">';
   html += '<span class="filter-label">Mostrar:</span>';
   html += '<button class="filter-btn active" data-filter="all" onclick="setFilter(\'all\')">Todas (' + unidades.length + ')</button>';
   html += '<div class="filter-divider"></div>';
-  html += '<button class="filter-btn" data-filter="baixa" onclick="setFilter(\'baixa\')">Conformidade < 50% (' + baixa + ')</button>';
-  html += '<button class="filter-btn" data-filter="media" onclick="setFilter(\'media\')">Conformidade 50-69% (' + media + ')</button>';
-  html += '<button class="filter-btn" data-filter="alta" onclick="setFilter(\'alta\')">Conformidade >= 70% (' + alta + ')</button>';
+  html += '<button class="filter-btn" data-filter="baixa" onclick="setFilter(\'baixa\')">🔴 Baixa &lt;50% (' + baixa + ')</button>';
+  html += '<button class="filter-btn" data-filter="media" onclick="setFilter(\'media\')">🟡 Média 50–69% (' + media + ')</button>';
+  html += '<button class="filter-btn" data-filter="alta"  onclick="setFilter(\'alta\')" >🟢 Alta ≥70% ('  + alta  + ')</button>';
   html += '</div>';
 
+  /* Table */
   html += '<div class="home-table">';
   html += '<div class="ht-head">';
   html += '<div class="ht-th">#</div>';
   html += '<div class="ht-th left">Unidade</div>';
   html += '<div class="ht-th">Total Itens</div>';
-  html += '<div class="ht-th">NOK</div>';
+  html += '<div class="ht-th">NOK / Ações</div>';
   html += '<div class="ht-th">Conformidade</div>';
+  html += '<div class="ht-th">Estado</div>';
   html += '<div class="ht-th">Detalhe</div>';
   html += '</div>';
   html += '<div id="ht-body"></div>';
   html += '</div>';
 
+  /* Bottom */
   html += '<div class="bottom-bar">';
-  html += '<div class="action-banner" style="flex:1"><div class="action-icon">!</div><div><div class="action-title">Acao Recomendada</div><div class="action-desc">Analisar unidades com conformidade inferior a 50%. Clique em "Detalhe" para ver categorias e itens auditados.</div></div></div>';
+  html += '<div class="level-legend"><div class="level-legend-title">Classificação de Conformidade</div><div class="level-items">';
+  html += '<div class="level-item-row"><div class="level-dot pill-alta">Alta</div><span>≥ 70% conformidade</span></div>';
+  html += '<div class="level-item-row"><div class="level-dot pill-media">Méd</div><span>50–69% conformidade</span></div>';
+  html += '<div class="level-item-row"><div class="level-dot pill-baixa">Bxa</div><span>< 50% conformidade</span></div>';
+  html += '</div></div>';
+  html += '<div class="action-banner"><div class="action-icon">⚠</div><div><div class="action-title">Ação Recomendada</div><div class="action-desc">Analisar urgentemente unidades com conformidade inferior a 50%. Clique em "Detalhe" para ver categorias e itens auditados.</div></div></div>';
   html += '</div>';
 
   document.getElementById('home-screen').innerHTML = html;
@@ -493,8 +546,8 @@ function renderHome() {
   renderHomeTable();
 }
 
-function statCard(label, val, sub) {
-  return '<div class="stat-card">'
+function statCard(label, val, sub, accent) {
+  return '<div class="stat-card ' + (accent || '') + '">'
     + '<div class="stat-card-label">' + label + '</div>'
     + '<div class="stat-card-val">' + val + '</div>'
     + '<div class="stat-card-sub">' + sub + '</div>'
@@ -513,10 +566,10 @@ function renderHomeTable() {
   var unidades = _unidades;
   var f = _activeFilter;
   var filtered = unidades.filter(function(u) {
-    var t = u._calcTotals || calcUnidadeTotals(u);
-    if (f === 'baixa') return t.taxa < 50;
-    if (f === 'media') return t.taxa >= 50 && t.taxa < 70;
-    if (f === 'alta') return t.taxa >= 70;
+    var taxa = u._calc.taxa;
+    if (f === 'baixa') return taxa < 50;
+    if (f === 'media') return taxa >= 50 && taxa < 70;
+    if (f === 'alta')  return taxa >= 70;
     return true;
   });
 
@@ -525,46 +578,55 @@ function renderHomeTable() {
     html = '<div style="padding:32px;text-align:center;color:var(--ink-4);font-size:13px">Sem unidades para este filtro.</div>';
   } else {
     filtered.forEach(function(u) {
-      var ui = unidades.indexOf(u);
-      var t = u._calcTotals || calcUnidadeTotals(u);
-      var totalItens = t.totalItens;
-      var totalNOK = t.totalNOK;
-      var taxa = t.taxa;
+      var ui   = unidades.indexOf(u);
+      var t    = u._calc;
+      var pc   = taxaPill(t.taxa);
+      var lbl  = taxaLabel(t.taxa);
 
       html += '<div class="ht-row" onclick="goDetail(' + ui + ')">';
 
+      /* rank */
       html += '<div class="ht-td rank-td" style="flex-direction:column;gap:6px;align-items:center;background:#f1f3f5">';
-      html += '<div style="font-family:\'DM Serif Display\',serif;font-size:26px;font-weight:400;color:var(--ink-2);line-height:1">' + (ui+1) + '</div>';
+      html += '<div style="font-family:\'DM Serif Display\',serif;font-size:26px;font-weight:400;color:var(--ink-2);line-height:1">' + (ui + 1) + '</div>';
+      html += '<div class="rank-pill ' + pc + '">' + lbl + '</div>';
       html += '</div>';
 
+      /* identity */
       html += '<div class="ht-td left" style="flex-direction:column;align-items:flex-start;gap:3px">';
       html += '<div style="font-weight:700;font-size:15px">' + u.nome + '</div>';
-      html += '<div style="font-size:12px;color:var(--ink-4)">' + u.localizacao + '</div>';
+      html += '<div style="font-size:12px;color:var(--ink-4)">' + (u.localizacao || '') + '</div>';
       html += '</div>';
 
+      /* total itens */
       html += '<div class="ht-td" style="flex-direction:column;gap:3px">';
       html += '<div style="font-size:12px;font-weight:800;letter-spacing:0.5px;text-transform:uppercase;color:var(--ink-4)">Total</div>';
-      html += '<div style="font-size:13px;color:var(--ink-3)">' + fmt(totalItens) + ' itens</div>';
+      html += '<div style="font-size:13px;color:var(--ink-3)">' + fmt(t.totalItens) + ' itens</div>';
       html += '</div>';
 
+      /* NOK / ações */
       html += '<div class="ht-td" style="flex-direction:column;gap:3px">';
-      html += '<div style="font-size:12px;font-weight:800;letter-spacing:0.5px;text-transform:uppercase;color:var(--ink-4)">Nao Conformes</div>';
-      html += '<div style="font-size:13px;color:#ff2222;font-weight:700">' + fmt(totalNOK) + ' NOK</div>';
+      html += '<div style="font-size:12px;font-weight:800;letter-spacing:0.5px;text-transform:uppercase;color:var(--ink-4)">NOK / Ações</div>';
+      html += '<div style="font-size:13px;color:#ff2222;font-weight:700">' + fmt(t.totalNOK) + ' NOK · ' + fmt(t.acoesAtraso) + ' em atraso</div>';
       html += '</div>';
 
+      /* conformidade progress */
       html += '<div class="ht-td"><div class="mini-prog">';
       html += '<div class="mini-row">'
-        + '<span style="font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:0.4px;color:var(--ink-4);min-width:60px">Conformidade</span>'
-        + '<div class="mini-track"><div class="mini-fill fill-green" style="width:' + taxa + '%"></div></div>'
-        + '<span class="mini-pct" style="color:#70AD47">' + taxa + '%</span>'
+        + '<span style="font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:0.4px;color:var(--ink-4);min-width:60px">Conforme</span>'
+        + '<div class="mini-track"><div class="mini-fill fill-green" style="width:' + t.taxa + '%"></div></div>'
+        + '<span class="mini-pct" style="color:var(--bar-green)">' + t.taxa + '%</span>'
         + '</div>';
       html += '<div class="mini-row">'
-        + '<span style="font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:0.4px;color:var(--ink-4);min-width:60px">Nao Conforme</span>'
-        + '<div class="mini-track"><div class="mini-fill fill-red" style="width:' + (100-taxa) + '%"></div></div>'
-        + '<span class="mini-pct" style="color:#ff2222">' + (100-taxa) + '%</span>'
+        + '<span style="font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:0.4px;color:var(--ink-4);min-width:60px">Não Conf.</span>'
+        + '<div class="mini-track"><div class="mini-fill fill-red" style="width:' + (100 - t.taxa) + '%"></div></div>'
+        + '<span class="mini-pct" style="color:var(--bar-red)">' + (100 - t.taxa) + '%</span>'
         + '</div>';
       html += '</div></div>';
 
+      /* estado (vazio – placeholder para consistência col) */
+      html += '<div class="ht-td"></div>';
+
+      /* detail btn */
       html += '<div class="ht-td" onclick="event.stopPropagation()">';
       html += '<button class="btn-detail" onclick="goDetail(' + ui + ')">Detalhe ' + svgArrow() + '</button>';
       html += '</div>';
@@ -575,60 +637,66 @@ function renderHomeTable() {
   document.getElementById('ht-body').innerHTML = html;
 }
 
-/* -- DETAIL -- */
+/* ── DETAIL ── */
 function renderDetail(idx) {
   var u = _unidades[idx];
   if (!u) return;
-  var t = u._calcTotals || calcUnidadeTotals(u);
-  var totalItens = t.totalItens;
-  var totalOK = t.totalOK;
-  var totalNOK = t.totalNOK;
-  var taxa = t.taxa;
+  var t = u._calc;
+  var pc  = taxaPill(t.taxa);
+  var lbl = taxaLabel(t.taxa);
 
   var html = '<div class="detail-card">';
   html += '<div class="card-main">';
 
-  html += '<div class="col-rank"><div class="rank-num">' + (idx+1) + '</div></div>';
+  /* rank */
+  html += '<div class="col-rank"><div class="rank-num">' + (idx + 1) + '</div><div class="rank-pill ' + pc + '">' + lbl + '</div></div>';
 
-  html += '<div class="col-id"><div class="unidade-nome">' + u.nome + '</div><div class="unidade-code">Conformidade: ' + taxa + '%</div></div>';
+  /* identity */
+  html += '<div class="col-id"><div class="unidade-nome">' + u.nome + '</div><div class="unidade-code">Conformidade: ' + t.taxa + '%</div></div>';
 
+  /* metrics */
   html += '<div class="col-metrics">';
-  var gOK = [{label:'Total Itens',val:fmt(totalItens),cls:'is-total'},{label:'OK',val:fmt(totalOK),cls:''},{label:'NOK',val:fmt(totalNOK),cls:'is-total-nok'}];
-  gOK.forEach(function(g){ html += '<div class="metric-group ' + g.cls + '"><div class="mg-label">' + g.label + '</div><div class="mg-val">' + g.val + '</div></div>'; });
+  [{label:'Total Itens',val:fmt(t.totalItens),cls:''},{label:'Conformes',val:fmt(t.totalOK),cls:'is-total'},{label:'Não Conf.',val:fmt(t.totalNOK),cls:'is-total-nok'}]
+    .forEach(function(g){ html += '<div class="metric-group '+g.cls+'"><div class="mg-label">'+g.label+'</div><div class="mg-val">'+g.val+'</div></div>'; });
   html += '</div>';
 
+  /* right: progress + actions */
   html += '<div class="col-right">';
   html += '<div class="progress-block">';
-  html += '<div class="progress-row"><div class="progress-label-row"><span class="prog-label">Conformidade</span><span class="prog-pct">' + taxa + '%</span></div><div class="prog-track"><div class="prog-fill fill-green" style="width:' + taxa + '%"></div></div></div>';
-  html += '<div class="progress-row"><div class="progress-label-row"><span class="prog-label">Nao Conforme</span><span class="prog-pct">' + (100-taxa) + '%</span></div><div class="prog-track"><div class="prog-fill fill-red" style="width:' + (100-taxa) + '%"></div></div></div>';
+  html += '<div class="progress-row"><div class="progress-label-row"><span class="prog-label">Conformidade</span><span class="prog-pct">' + t.taxa + '%</span></div><div class="prog-track"><div class="prog-fill fill-green" style="width:' + t.taxa + '%"></div></div></div>';
+  html += '<div class="progress-row"><div class="progress-label-row"><span class="prog-label">Não Conforme</span><span class="prog-pct">' + (100 - t.taxa) + '%</span></div><div class="prog-track"><div class="prog-fill fill-red" style="width:' + (100 - t.taxa) + '%"></div></div></div>';
   html += '</div>';
   html += '<div class="actions-col">';
   html += '<button class="btn-card" id="bs-' + idx + '" onclick="toggleCategorias(' + idx + ')">' + svgLayers() + 'Categorias</button>';
   html += '</div>';
   html += '</div>';
 
-  html += '</div>';
+  html += '</div>'; /* card-main */
 
+  /* Categorias panel */
   html += '<div class="panel" id="ps-' + idx + '"><div class="panel-body">';
   if (u.categorias && u.categorias.length > 0) {
-    html += '<div class="panel-title">Categorias - ' + u.nome + '</div>';
+    html += '<div class="panel-title">Categorias · ' + u.nome + '</div>';
     html += '<div class="cat-tabs" id="cat-tabs-' + idx + '">';
     u.categorias.forEach(function(c, ci) {
-      html += '<button class="cat-tab' + (ci===0?' on':'') + '" onclick="selectCategoria(' + idx + ',' + ci + ')">' + c.categoria + '</button>';
+      html += '<button class="cat-tab' + (ci === 0 ? ' on' : '') + '" onclick="selectCategoria(' + idx + ',' + ci + ')">' + c.categoria + '</button>';
     });
     html += '</div>';
     html += '<div id="itens-wrap-' + idx + '">' + buildItensHTML(u, 0, 0, idx) + '</div>';
   } else {
-    html += '<p style="color:var(--ink-4);font-size:14px">Sem categorias disponiveis para esta unidade.</p>';
+    html += '<p style="color:var(--ink-4);font-size:14px">Sem categorias disponíveis para esta unidade.</p>';
   }
   html += '</div></div>';
 
-  html += '</div>';
+  html += '</div>'; /* detail-card */
 
+  /* Legend */
   html += '<div class="legend-bar">';
-  html += '<div class="legend-item"><div class="legend-dot" style="background:#70AD47"></div><span style="font-weight:700">OK</span> = Conforme</div>';
+  html += '<div class="legend-item"><div class="legend-dot" style="background:var(--bar-green)"></div><span style="font-weight:700">OK</span> = Conforme</div>';
   html += '<div class="legend-sep"></div>';
-  html += '<div class="legend-item"><div class="legend-dot" style="background:#ff2222"></div><span style="font-weight:700">NOK</span> = Nao Conforme</div>';
+  html += '<div class="legend-item"><div class="legend-dot" style="background:var(--bar-red)"></div><span style="font-weight:700">NOK</span> = Não Conforme</div>';
+  html += '<div class="legend-sep"></div>';
+  html += '<div class="legend-item">Os itens com código repetido representam auditorias distintas ao mesmo ponto de controlo</div>';
   html += '</div>';
 
   document.getElementById('detail-app').innerHTML = html;
@@ -641,70 +709,110 @@ function toggleCategorias(idx) {
   if (p) p.classList.toggle('open', _panelS[idx]);
   if (b) b.classList.toggle('active', _panelS[idx]);
   if (_panelS[idx]) {
-    setTimeout(function() { buildItensChart(idx, _currentCategoriaIdx, _currentItemIdx); }, 150);
+    setTimeout(function() { buildItensChart(idx, _currentCategoriaIdx); }, 150);
   }
 }
 
 function selectCategoria(unidadeIdx, catIdx) {
   _currentCategoriaIdx = catIdx;
   _currentItemIdx = 0;
-  var tabs = document.querySelectorAll('#cat-tabs-' + unidadeIdx + ' .cat-tab');
-  tabs.forEach(function(t, i) { t.classList.toggle('on', i === catIdx); });
+  document.querySelectorAll('#cat-tabs-' + unidadeIdx + ' .cat-tab').forEach(function(t, i) {
+    t.classList.toggle('on', i === catIdx);
+  });
   var wrap = document.getElementById('itens-wrap-' + unidadeIdx);
   if (wrap) {
-    if (_catCharts['cat-' + unidadeIdx]) { _catCharts['cat-' + unidadeIdx].destroy(); delete _catCharts['cat-' + unidadeIdx]; }
+    destroyCatChart(unidadeIdx);
     wrap.innerHTML = buildItensHTML(_unidades[unidadeIdx], catIdx, 0, unidadeIdx);
-    setTimeout(function() { buildItensChart(unidadeIdx, catIdx, 0); }, 150);
+    setTimeout(function() { buildItensChart(unidadeIdx, catIdx); }, 150);
   }
 }
 
 function selectItem(unidadeIdx, val) {
   _currentItemIdx = Number(val);
-  var u = _unidades[unidadeIdx];
   var wrap = document.getElementById('itens-wrap-' + unidadeIdx);
   if (wrap) {
-    if (_catCharts['cat-' + unidadeIdx]) { _catCharts['cat-' + unidadeIdx].destroy(); delete _catCharts['cat-' + unidadeIdx]; }
-    wrap.innerHTML = buildItensHTML(u, _currentCategoriaIdx, _currentItemIdx, unidadeIdx);
-    setTimeout(function() { buildItensChart(unidadeIdx, _currentCategoriaIdx, _currentItemIdx); }, 150);
+    destroyCatChart(unidadeIdx);
+    wrap.innerHTML = buildItensHTML(_unidades[unidadeIdx], _currentCategoriaIdx, _currentItemIdx, unidadeIdx);
+    setTimeout(function() { buildItensChart(unidadeIdx, _currentCategoriaIdx); }, 150);
   }
 }
 
-function buildItensHTML(u, catIdx, itemIdx, unidadeIdx) {
+function destroyCatChart(idx) {
+  if (_catCharts['cat-' + idx]) { _catCharts['cat-' + idx].destroy(); delete _catCharts['cat-' + idx]; }
+}
+
+/* ── Build HTML de itens (com agrupamento por código) ── */
+function buildItensHTML(u, catIdx, itemGroupIdx, unidadeIdx) {
   var cat = u.categorias && u.categorias[catIdx];
-  if (!cat || !cat.itens || cat.itens.length === 0) return '<p style="color:var(--ink-4);font-size:14px">Sem itens nesta categoria.</p>';
-  var item = cat.itens[itemIdx] || cat.itens[0];
+  if (!cat || !cat.itens || cat.itens.length === 0) {
+    return '<p style="color:var(--ink-4);font-size:14px">Sem itens nesta categoria.</p>';
+  }
+
+  /* Agrupar itens por código (evita select com duplicados) */
+  var groups = groupItemsByCode(cat.itens);
+  var group  = groups[itemGroupIdx] || groups[0];
+
+  /* Calcular estado agregado do grupo */
+  var temNOK = group.ocorrencias.some(function(o){ return o.estado === 'NOK'; });
+  var estadoAgregado = temNOK ? 'NOK' : 'OK';
+  var totalAtraso = group.ocorrencias.reduce(function(acc, o){ return acc + (o.dias_atraso || 0); }, 0);
+  var maxAtraso   = group.ocorrencias.reduce(function(acc, o){ return Math.max(acc, o.dias_atraso || 0); }, 0);
+  var emAtraso    = group.ocorrencias.filter(function(o){ return o.status_acao === 'Em_Atraso'; }).length;
+  var responsaveis = [...new Set(group.ocorrencias.map(function(o){ return o.responsavel_acao; }).filter(Boolean))].join(', ') || 'N/A';
 
   var html = '<div class="item-row">';
-  html += '<span class="item-lbl">Item:</span>';
+  html += '<span class="item-lbl">Ponto de Controlo:</span>';
   html += '<select class="item-select" onchange="selectItem(' + unidadeIdx + ', this.value)">';
-  cat.itens.forEach(function(it, i) {
-    html += '<option value="' + i + '"' + (i===itemIdx?' selected':'') + '>' + it.codigo_item + ' - ' + it.descricao + '</option>';
+  groups.forEach(function(g, i) {
+    var gNOK = g.ocorrencias.some(function(o){ return o.estado === 'NOK'; });
+    html += '<option value="' + i + '"' + (i === itemGroupIdx ? ' selected' : '') + '>'
+      + g.codigo_item + ' – ' + g.descricao
+      + ' (' + g.ocorrencias.length + ' audit.' + (gNOK ? ' · ⚠ NOK' : '') + ')'
+      + '</option>';
   });
   html += '</select></div>';
 
+  /* Vals grid */
   html += '<div class="vals-grid">';
-  html += valCard('Estado', item.estado, item.estado === 'OK' ? 'color:#70AD47' : 'color:#ff2222');
-  html += valCard('Status Acao', item.status_acao, item.status_acao === 'Concluida' ? 'color:#70AD47' : item.status_acao === 'Em_Atraso' ? 'color:#ff2222' : 'color:#ff7b00');
-  html += valCard('Dias Atraso', fmt(item.dias_atraso), item.dias_atraso > 0 ? 'color:#ff2222' : 'color:#70AD47');
-  html += valCard('Responsavel', item.responsavel_acao || 'N/A', '');
+  html += valCard('Estado Geral', estadoAgregado, estadoAgregado === 'OK' ? 'color:var(--bar-green)' : 'color:var(--bar-red)');
+  html += valCard('Nº Auditorias', group.ocorrencias.length, '');
+  html += valCard('Em Atraso', emAtraso, emAtraso > 0 ? 'color:var(--bar-red)' : 'color:var(--bar-green)');
+  html += valCard('Máx. Dias Atraso', maxAtraso, maxAtraso > 0 ? 'color:var(--bar-red)' : 'color:var(--bar-green)');
   html += '</div>';
 
-  if (item.medida_corretiva) {
-    html += '<div style="background:#fff; border:1px solid var(--line); border-radius:10px; padding:16px; margin-bottom:16px;">';
-    html += '<div style="font-size:11px;font-weight:800;text-transform:uppercase;color:var(--ink-4);margin-bottom:6px">Medida Corretiva</div>';
-    html += '<div style="font-size:14px;color:var(--ink);font-weight:600">' + item.medida_corretiva + '</div>';
-    if (item.prazo) {
-      html += '<div style="font-size:12px;color:var(--ink-4);margin-top:4px">Prazo: ' + item.prazo + '</div>';
-    }
+  /* Tabela de ocorrências */
+  html += '<div style="background:#fff;border:1px solid var(--line);border-radius:10px;overflow:hidden;margin-bottom:16px">';
+  html += '<div style="padding:12px 16px;border-bottom:1px solid var(--line);font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:0.5px;color:var(--ink-4);background:#f8f9fa">';
+  html += 'Histórico de Auditorias · ' + group.descricao;
+  html += '</div>';
+  group.ocorrencias.forEach(function(o, oi) {
+    var rowBg = o.estado === 'NOK' ? 'background:#fffafa' : '';
+    html += '<div style="display:grid;grid-template-columns:60px 1fr 1fr 1fr 1fr;border-bottom:1px solid var(--line);' + (oi === group.ocorrencias.length - 1 ? 'border-bottom:none;' : '') + rowBg + '">';
+    html += '<div style="padding:10px 12px;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;color:' + (o.estado === 'NOK' ? 'var(--bar-red)' : 'var(--bar-green)') + ';border-right:1px solid var(--line)">' + o.estado + '</div>';
+    html += '<div style="padding:10px 12px;font-size:12px;color:var(--ink-3);border-right:1px solid var(--line)">';
+    html += '<div style="font-weight:700;font-size:11px;text-transform:uppercase;letter-spacing:0.4px;color:var(--ink-4)">Responsável</div>';
+    html += '<div style="font-weight:600">' + (o.responsavel_acao || 'N/A') + '</div></div>';
+    html += '<div style="padding:10px 12px;font-size:12px;color:var(--ink-3);border-right:1px solid var(--line)">';
+    html += '<div style="font-weight:700;font-size:11px;text-transform:uppercase;letter-spacing:0.4px;color:var(--ink-4)">Prazo</div>';
+    html += '<div style="font-weight:600">' + (o.prazo || '—') + '</div></div>';
+    html += '<div style="padding:10px 12px;font-size:12px;color:var(--ink-3);border-right:1px solid var(--line)">';
+    html += '<div style="font-weight:700;font-size:11px;text-transform:uppercase;letter-spacing:0.4px;color:var(--ink-4)">Status Ação</div>';
+    var sColor = o.status_acao === 'Concluida' ? 'var(--bar-green)' : o.status_acao === 'Em_Atraso' ? 'var(--bar-red)' : o.status_acao === 'Em_Andamento' ? '#ff7b00' : 'var(--ink-4)';
+    html += '<div style="font-weight:700;color:' + sColor + '">' + (o.status_acao || '—') + '</div></div>';
+    html += '<div style="padding:10px 12px;font-size:12px;color:var(--ink-3)">';
+    html += '<div style="font-weight:700;font-size:11px;text-transform:uppercase;letter-spacing:0.4px;color:var(--ink-4)">Medida Corretiva</div>';
+    html += '<div style="font-weight:600">' + (o.medida_corretiva || '—') + '</div></div>';
     html += '</div>';
-  }
+  });
+  html += '</div>';
 
+  /* Gráfico */
   html += '<div class="chart-wrap">';
-  html += '<div style="font-size:13px;font-weight:700;color:var(--ink-3);margin-bottom:14px">Distribuicao de Conformidade por Categoria</div>';
+  html += '<div style="font-size:13px;font-weight:700;color:var(--ink-3);margin-bottom:14px">Distribuição de Conformidade por Categoria</div>';
   html += '<canvas id="catChart-' + unidadeIdx + '" style="max-height:200px"></canvas>';
   html += '<div class="chart-legend">';
-  html += '<div class="legend-item"><div class="legend-dot" style="background:#70AD47"></div>Conforme (OK)</div>';
-  html += '<div class="legend-item"><div class="legend-dot" style="background:#ff2222"></div>Nao Conforme (NOK)</div>';
+  html += '<div class="legend-item"><div class="legend-dot" style="background:var(--bar-green)"></div>Conforme (OK)</div>';
+  html += '<div class="legend-item"><div class="legend-dot" style="background:var(--bar-red)"></div>Não Conforme (NOK)</div>';
   html += '</div></div>';
 
   return html;
@@ -714,18 +822,17 @@ function valCard(label, val, style) {
   return '<div class="val-card"><div class="val-lbl">' + label + '</div><div class="val-num" style="' + style + '">' + val + '</div></div>';
 }
 
-function buildItensChart(unidadeIdx, catIdx, itemIdx) {
+function buildItensChart(unidadeIdx, catIdx) {
   var u = _unidades[unidadeIdx];
   if (!u || !u.categorias) return;
   var cat = u.categorias[catIdx];
-  if (!cat || !cat.itens) return;
-
+  if (!cat) return;
   var canvas = document.getElementById('catChart-' + unidadeIdx);
   if (!canvas) return;
 
-  if (_catCharts['cat-' + unidadeIdx]) { _catCharts['cat-' + unidadeIdx].destroy(); delete _catCharts['cat-' + unidadeIdx]; }
+  destroyCatChart(unidadeIdx);
 
-  var okCount = cat.totaisCategoria.ok || 0;
+  var okCount  = cat.totaisCategoria.ok  || 0;
   var nokCount = cat.totaisCategoria.nok || 0;
 
   _catCharts['cat-' + unidadeIdx] = new Chart(canvas.getContext('2d'), {
@@ -738,19 +845,13 @@ function buildItensChart(unidadeIdx, catIdx, itemIdx) {
           label: 'OK',
           data: [okCount],
           backgroundColor: 'rgba(112,173,71,.8)',
-          borderRadius: 4,
-          borderWidth: 0,
-          barPercentage: 0.6,
-          categoryPercentage: 0.7
+          borderRadius: 4, borderWidth: 0, barPercentage: 0.6, categoryPercentage: 0.7
         },
         {
           label: 'NOK',
           data: [nokCount],
           backgroundColor: 'rgba(255,34,34,.85)',
-          borderRadius: 4,
-          borderWidth: 0,
-          barPercentage: 0.6,
-          categoryPercentage: 0.7
+          borderRadius: 4, borderWidth: 0, barPercentage: 0.6, categoryPercentage: 0.7
         }
       ]
     },
@@ -762,17 +863,13 @@ function buildItensChart(unidadeIdx, catIdx, itemIdx) {
       plugins: {
         legend: { display: false },
         datalabels: {
-          anchor: 'end',
-          align: 'end',
-          formatter: function(v) { return v; },
+          anchor: 'end', align: 'end',
+          formatter: function(v){ return v; },
           font: { size: 14, weight: '700', family: 'DM Sans' },
-          color: '#1a1a1a',
-          offset: 4
+          color: '#1a1a1a', offset: 4
         },
         tooltip: {
-          callbacks: {
-            label: function(c) { return ' ' + c.dataset.label + ': ' + c.parsed.x; }
-          }
+          callbacks: { label: function(c){ return ' ' + c.dataset.label + ': ' + c.parsed.x; } }
         }
       },
       scales: {
@@ -780,7 +877,7 @@ function buildItensChart(unidadeIdx, catIdx, itemIdx) {
           beginAtZero: true,
           ticks: { font: { size: 12, weight: '600' }, stepSize: 1 },
           grid: { color: 'rgba(0,0,0,.06)' },
-          title: { display: true, text: 'N de Itens', color: '#777', font: { size: 12, weight: '700' } }
+          title: { display: true, text: 'Nº de Itens', color: '#777', font: { size: 12, weight: '700' } }
         },
         y: {
           ticks: { font: { size: 14, weight: '700', family: 'DM Sans' }, color: '#1a1a1a' },
