@@ -375,6 +375,18 @@ var _currentItemIdx = 0;
 var _panelS = {};
 var _catCharts = {};
 
+/* Mapa de letras de categoria para nome completo */
+var CAT_NAMES = {
+  'A': 'A – Higiene e Limpeza',
+  'B': 'B – Armazenamento e Stock',
+  'C': 'C – Controlo de Temperaturas',
+  'D': 'D – Controlo de Pragas',
+  'E': 'E – Documentação HACCP'
+};
+function catName(letra) {
+  return CAT_NAMES[letra] || letra;
+}
+
 function fmt(n) { return Number(n||0).toLocaleString('pt-PT'); }
 
 /* Determina pill de conformidade */
@@ -498,13 +510,20 @@ function renderHome() {
 
   var html = '';
 
+  /* Ações globais em atraso */
+  var totalAcoesAtraso = 0, totalAcoesAbertas = 0;
+  unidades.forEach(function(u) {
+    totalAcoesAtraso  += u._calc.acoesAtraso;
+    totalAcoesAbertas += u._calc.acoesAbertas;
+  });
+
   /* Stats */
   html += '<div class="home-stats">';
   html += statCard('Total Unidades', unidades.length, 'Em monitorização', '');
-  html += statCard('Itens Auditados', fmt(totalItensAll), 'Total global', '');
+  html += statCard('Itens Auditados', fmt(totalItensAll), 'Total de registos', '');
   html += statCard('Conformes', fmt(totalOKAll), taxaGlobal + '% do total', 'accent-green');
   html += statCard('Não Conformes', fmt(totalNOKAll), (100 - taxaGlobal) + '% do total', 'accent-red');
-  html += statCard('Conformidade Baixa', baixa, '< 50% conformidade', baixa > 0 ? 'accent-red' : '');
+  html += statCard('Ações em Atraso', fmt(totalAcoesAtraso), 'De ' + fmt(totalAcoesAbertas) + ' abertas', totalAcoesAtraso > 0 ? 'accent-amber' : '');
   html += '</div>';
 
   /* Filter bar */
@@ -676,10 +695,10 @@ function renderDetail(idx) {
   /* Categorias panel */
   html += '<div class="panel" id="ps-' + idx + '"><div class="panel-body">';
   if (u.categorias && u.categorias.length > 0) {
-    html += '<div class="panel-title">Categorias · ' + u.nome + '</div>';
+    html += '<div class="panel-title">Categorias de Auditoria · ' + u.nome + '</div>';
     html += '<div class="cat-tabs" id="cat-tabs-' + idx + '">';
     u.categorias.forEach(function(c, ci) {
-      html += '<button class="cat-tab' + (ci === 0 ? ' on' : '') + '" onclick="selectCategoria(' + idx + ',' + ci + ')">' + c.categoria + '</button>';
+      html += '<button class="cat-tab' + (ci === 0 ? ' on' : '') + '" onclick="selectCategoria(' + idx + ',' + ci + ')">' + catName(c.categoria) + '</button>';
     });
     html += '</div>';
     html += '<div id="itens-wrap-' + idx + '">' + buildItensHTML(u, 0, 0, idx) + '</div>';
@@ -808,7 +827,9 @@ function buildItensHTML(u, catIdx, itemGroupIdx, unidadeIdx) {
 
   /* Gráfico */
   html += '<div class="chart-wrap">';
-  html += '<div style="font-size:13px;font-weight:700;color:var(--ink-3);margin-bottom:14px">Distribuição de Conformidade por Categoria</div>';
+  var cat2 = u.categorias && u.categorias[catIdx];
+  var catTitulo = cat2 ? catName(cat2.categoria) : 'Categoria';
+  html += '<div style="font-size:13px;font-weight:700;color:var(--ink-3);margin-bottom:14px">Conformidade · ' + catTitulo + '</div>';
   html += '<canvas id="catChart-' + unidadeIdx + '" style="max-height:200px"></canvas>';
   html += '<div class="chart-legend">';
   html += '<div class="legend-item"><div class="legend-dot" style="background:var(--bar-green)"></div>Conforme (OK)</div>';
