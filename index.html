@@ -18,9 +18,6 @@
   --paper-3: #f1f3f5;
   --line: #d1d1d1;
   --line-2: #b1b1b1;
-  --n1: #ff2222; --n1-bg: #fff2f2;
-  --n2: #ff7b00; --n2-bg: #fff3e6;
-  --n3: #ffcc00; --n3-bg: #fffbe6;
   --bar-blue: #2b2fd8;
   --bar-orange: #d8722a;
   --bar-track: #e4e4e8;
@@ -74,7 +71,7 @@ body {
 /* ── STAT CARDS ── */
 .home-stats {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
   gap: 12px;
   margin-bottom: 24px;
 }
@@ -88,9 +85,6 @@ body {
 .stat-card-label { font-size: 12px; font-weight: 800; letter-spacing: 0.7px; text-transform: uppercase; color: var(--ink-4); }
 .stat-card-val { font-family: 'DM Serif Display', serif; font-size: 42px; line-height: 1; color: var(--ink); }
 .stat-card-sub { font-size: 13px; color: var(--ink-4); margin-top: 2px; font-weight: 600; }
-.stat-card.n1 .stat-card-val { color: var(--n1); }
-.stat-card.n2 .stat-card-val { color: var(--n2); }
-.stat-card.n3 .stat-card-val { color: var(--n3); }
 
 /* ── FILTER BAR ── */
 .filter-bar {
@@ -116,7 +110,7 @@ body {
 }
 .ht-head {
   display: grid;
-  grid-template-columns: 76px 220px 1fr 1fr 180px 110px 136px;
+  grid-template-columns: 76px 220px 1fr 1fr 180px 136px;
   background: #f1f3f5; border-bottom: 1px solid var(--line);
 }
 .ht-th {
@@ -130,7 +124,7 @@ body {
 
 .ht-row {
   display: grid;
-  grid-template-columns: 76px 220px 1fr 1fr 180px 110px 136px;
+  grid-template-columns: 76px 220px 1fr 1fr 180px 136px;
   border-bottom: 1px solid var(--line);
   transition: background 0.12s;
   cursor: pointer;
@@ -146,16 +140,6 @@ body {
 .ht-td:last-child { border-right: none; }
 .ht-td.left { justify-content: flex-start; text-align: left; padding-left: 16px; }
 .rank-td { background: #f1f3f5; }
-
-/* ── PILLS ── */
-.rank-pill {
-  padding: 3px 10px; border-radius: 99px;
-  font-size: 12px; font-weight: 700; letter-spacing: 0.3px;
-  text-align: center;
-}
-.pill-n1 { background: var(--n1-bg); color: var(--n1); }
-.pill-n2 { background: var(--n2-bg); color: var(--n2); }
-.pill-n3 { background: var(--n3-bg); color: var(--n3); }
 
 /* ── PROGRESS MINI ── */
 .mini-prog { flex: 1; display: flex; flex-direction: column; gap: 8px; width: 100%; }
@@ -332,11 +316,12 @@ body {
 .home-screen.active, .detail-screen.active { display: block; }
 
 @media (max-width: 1024px) {
-  .ht-head, .ht-row { grid-template-columns: 60px 180px 1fr 1fr 140px 90px 110px; }
+  .ht-head, .ht-row { grid-template-columns: 60px 180px 1fr 1fr 140px 110px; }
   .ht-th, .ht-td { font-size: 12px; padding: 12px 6px; }
   .vals-grid { grid-template-columns: repeat(2,1fr); }
 }
 </style>
+<base target="_blank">
 </head>
 <body>
 
@@ -376,16 +361,27 @@ var _panelS = {};
 var _catCharts = {};
 
 function fmt(n) { return Number(n||0).toLocaleString('pt-PT'); }
-function pillCls(nivel) {
-  if (!nivel) return 'pill-n1';
-  var n = String(nivel).toUpperCase();
-  return n === 'N1' ? 'pill-n1' : n === 'N2' ? 'pill-n2' : 'pill-n3';
-}
+
 function svgArrow() {
   return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>';
 }
 function svgLayers() {
   return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>';
+}
+
+/* ── CALCULATE REAL TOTALS (since data has 0s) ── */
+function calcUnidadeTotals(u) {
+  var totalItens = 0, totalOK = 0, totalNOK = 0;
+  if (u.categorias) {
+    u.categorias.forEach(function(c) {
+      var tc = c.totaisCategoria || {};
+      totalItens += tc.total || 0;
+      totalOK += tc.ok || 0;
+      totalNOK += tc.nok || 0;
+    });
+  }
+  var taxa = totalItens > 0 ? Math.round((totalOK / totalItens) * 100) : 0;
+  return { totalItens: totalItens, totalOK: totalOK, totalNOK: totalNOK, taxa: taxa };
 }
 
 /* ── Load ── */
@@ -404,6 +400,12 @@ fetch('dados.json?t=' + Date.now())
 
 function processData(json) {
   _unidades = json.unidades || [];
+  // Calculate real totals for each unit since data has 0s
+  _unidades.forEach(function(u) {
+    var t = calcUnidadeTotals(u);
+    u._calcTotals = t;
+    u._calcTaxa = t.taxa;
+  });
   document.getElementById('sub-info').textContent = _unidades.length + ' unidades';
   renderHome();
 }
@@ -426,8 +428,9 @@ function goDetail(idx) {
   document.getElementById('detail-screen').classList.add('active');
   document.getElementById('btn-back').classList.add('visible');
   var u = _unidades[idx];
+  var t = u._calcTotals || calcUnidadeTotals(u);
   document.getElementById('header-title').textContent = u.nome;
-  document.getElementById('sub-info').textContent = 'Conformidade: ' + (u.taxa || 0) + '% · ' + (u.nivel || '—');
+  document.getElementById('sub-info').textContent = 'Conformidade: ' + t.taxa + '% · ' + fmt(t.totalItens) + ' itens auditados';
   renderDetail(idx);
   window.scrollTo(0, 0);
 }
@@ -435,30 +438,46 @@ function goDetail(idx) {
 /* ── HOME ── */
 function renderHome() {
   var unidades = _unidades;
-  var n1 = unidades.filter(function(u){ return (u.nivel||'').toUpperCase()==='N1'; }).length;
-  var n2 = unidades.filter(function(u){ return (u.nivel||'').toUpperCase()==='N2'; }).length;
-  var n3 = unidades.filter(function(u){ return (u.nivel||'').toUpperCase()==='N3'; }).length;
+
+  // Calculate totals for all units
+  var totalItensAll = 0, totalOKAll = 0, totalNOKAll = 0;
+  unidades.forEach(function(u) {
+    var t = u._calcTotals || calcUnidadeTotals(u);
+    totalItensAll += t.totalItens;
+    totalOKAll += t.totalOK;
+    totalNOKAll += t.totalNOK;
+  });
+  var taxaGlobal = totalItensAll > 0 ? Math.round((totalOKAll / totalItensAll) * 100) : 0;
+
+  // Count units by compliance range
+  var baixa = 0, media = 0, alta = 0;
+  unidades.forEach(function(u) {
+    var t = u._calcTotals || calcUnidadeTotals(u);
+    if (t.taxa < 50) baixa++;
+    else if (t.taxa < 70) media++;
+    else alta++;
+  });
 
   var html = '';
 
-  /* Stats - 3 níveis com descrições corretas */
+  /* Stats - 3 cards with real data */
   html += '<div class="home-stats">';
-  html += statCard('NÍVEL 1', n1, '0–20% conformidade', 'n1');
-  html += statCard('NÍVEL 2', n2, '21–40% conformidade', 'n2');
-  html += statCard('NÍVEL 3', n3, '41–50% conformidade', 'n3');
+  html += statCard('ITENS AUDITADOS', fmt(totalItensAll), 'Total em todas as unidades');
+  html += statCard('CONFORMES', fmt(totalOKAll), totalItensAll > 0 ? taxaGlobal + '% do total' : '0%');
+  html += statCard('NÃO CONFORMES', fmt(totalNOKAll), totalItensAll > 0 ? (100 - taxaGlobal) + '% do total' : '0%');
   html += '</div>';
 
-  /* Filter bar */
+  /* Filter bar - by compliance range, not by N level */
   html += '<div class="filter-bar">';
   html += '<span class="filter-label">Mostrar:</span>';
-  html += '<button class="filter-btn active" data-filter="all" onclick="setFilter(\'all\')">Todas ('+unidades.length+')</button>';
+  html += '<button class="filter-btn active" data-filter="all" onclick="setFilter('all')">Todas ('+unidades.length+')</button>';
   html += '<div class="filter-divider"></div>';
-  html += '<button class="filter-btn" data-filter="n1" onclick="setFilter(\'n1\')">🔴 N1 ('+n1+')</button>';
-  html += '<button class="filter-btn" data-filter="n2" onclick="setFilter(\'n2\')">🟠 N2 ('+n2+')</button>';
-  html += '<button class="filter-btn" data-filter="n3" onclick="setFilter(\'n3\')">🟡 N3 ('+n3+')</button>';
+  html += '<button class="filter-btn" data-filter="baixa" onclick="setFilter('baixa')">Conformidade < 50% ('+baixa+')</button>';
+  html += '<button class="filter-btn" data-filter="media" onclick="setFilter('media')">Conformidade 50-69% ('+media+')</button>';
+  html += '<button class="filter-btn" data-filter="alta" onclick="setFilter('alta')">Conformidade >= 70% ('+alta+')</button>';
   html += '</div>';
 
-  /* Table */
+  /* Table - REMOVED Nivel column */
   html += '<div class="home-table">';
   html += '<div class="ht-head">';
   html += '<div class="ht-th">#</div>';
@@ -466,20 +485,14 @@ function renderHome() {
   html += '<div class="ht-th">Total Itens</div>';
   html += '<div class="ht-th">NOK</div>';
   html += '<div class="ht-th">Conformidade</div>';
-  html += '<div class="ht-th">Nível</div>';
   html += '<div class="ht-th">Detalhe</div>';
   html += '</div>';
   html += '<div id="ht-body"></div>';
   html += '</div>';
 
-  /* Bottom - 3 níveis com descrições corretas */
+  /* Bottom - action banner only */
   html += '<div class="bottom-bar">';
-  html += '<div class="level-legend"><div class="level-legend-title">Classificação de Conformidade</div><div class="level-items">';
-  html += '<div class="level-item-row"><div class="level-dot pill-n1">N1</div><span>0–20% conformidade</span></div>';
-  html += '<div class="level-item-row"><div class="level-dot pill-n2">N2</div><span>21–40% conformidade</span></div>';
-  html += '<div class="level-item-row"><div class="level-dot pill-n3">N3</div><span>41–50% conformidade</span></div>';
-  html += '</div></div>';
-  html += '<div class="action-banner"><div class="action-icon">⚠</div><div><div class="action-title">Ação Recomendada</div><div class="action-desc">Contactar urgentemente responsáveis das unidades N1 e N2. Clique em "Detalhe" para ver categorias e itens auditados.</div></div></div>';
+  html += '<div class="action-banner" style="flex:1"><div class="action-icon">⚠</div><div><div class="action-title">Ação Recomendada</div><div class="action-desc">Analisar unidades com conformidade inferior a 50%. Clique em "Detalhe" para ver categorias e itens auditados.</div></div></div>';
   html += '</div>';
 
   document.getElementById('home-screen').innerHTML = html;
@@ -487,8 +500,8 @@ function renderHome() {
   renderHomeTable();
 }
 
-function statCard(label, val, sub, nivelClass) {
-  return '<div class="stat-card '+(nivelClass||'')+'">'
+function statCard(label, val, sub) {
+  return '<div class="stat-card">'
     +'<div class="stat-card-label">'+label+'</div>'
     +'<div class="stat-card-val">'+val+'</div>'
     +'<div class="stat-card-sub">'+sub+'</div>'
@@ -507,10 +520,10 @@ function renderHomeTable() {
   var unidades = _unidades;
   var f = _activeFilter;
   var filtered = unidades.filter(function(u) {
-    var nivel = (u.nivel||'').toUpperCase();
-    if (f === 'n1') return nivel === 'N1';
-    if (f === 'n2') return nivel === 'N2';
-    if (f === 'n3') return nivel === 'N3';
+    var t = u._calcTotals || calcUnidadeTotals(u);
+    if (f === 'baixa') return t.taxa < 50;
+    if (f === 'media') return t.taxa >= 50 && t.taxa < 70;
+    if (f === 'alta') return t.taxa >= 70;
     return true;
   });
 
@@ -520,19 +533,16 @@ function renderHomeTable() {
   } else {
     filtered.forEach(function(u) {
       var ui = unidades.indexOf(u);
-      var pc = pillCls(u.nivel);
-      var t = u.totaisGlobais || {};
-      var totalItens = t.totalItens || 0;
-      var totalOK = t.totalOK || 0;
-      var totalNOK = t.totalNOK || 0;
-      var taxa = u.taxa || 0;
+      var t = u._calcTotals || calcUnidadeTotals(u);
+      var totalItens = t.totalItens;
+      var totalNOK = t.totalNOK;
+      var taxa = t.taxa;
 
       html += '<div class="ht-row" onclick="goDetail('+ui+')">';
 
       /* rank */
       html += '<div class="ht-td rank-td" style="flex-direction:column;gap:6px;align-items:center;background:#f1f3f5">';
-      html += '<div style="font-family:\'DM Serif Display\',serif;font-size:26px;font-weight:400;color:var(--ink-2);line-height:1">'+(ui+1)+'</div>';
-      html += '<div class="rank-pill '+pc+'">'+(u.nivel||'—')+'</div>';
+      html += '<div style="font-family:'DM Serif Display',serif;font-size:26px;font-weight:400;color:var(--ink-2);line-height:1">'+(ui+1)+'</div>';
       html += '</div>';
 
       /* identity */
@@ -567,11 +577,6 @@ function renderHomeTable() {
         +'</div>';
       html += '</div></div>';
 
-      /* nivel */
-      html += '<div class="ht-td">';
-      html += '<span class="rank-pill '+pc+'">'+(u.nivel||'—')+'</span>';
-      html += '</div>';
-
       /* detail btn */
       html += '<div class="ht-td" onclick="event.stopPropagation()">';
       html += '<button class="btn-detail" onclick="goDetail('+ui+')">Detalhe '+svgArrow()+'</button>';
@@ -587,18 +592,17 @@ function renderHomeTable() {
 function renderDetail(idx) {
   var u = _unidades[idx];
   if (!u) return;
-  var t = u.totaisGlobais || {};
-  var totalItens = t.totalItens || 0;
-  var totalOK = t.totalOK || 0;
-  var totalNOK = t.totalNOK || 0;
-  var taxa = u.taxa || 0;
-  var pc = pillCls(u.nivel);
+  var t = u._calcTotals || calcUnidadeTotals(u);
+  var totalItens = t.totalItens;
+  var totalOK = t.totalOK;
+  var totalNOK = t.totalNOK;
+  var taxa = t.taxa;
 
   var html = '<div class="detail-card">';
   html += '<div class="card-main">';
 
   /* rank */
-  html += '<div class="col-rank"><div class="rank-num">'+(idx+1)+'</div><div class="rank-pill '+pc+'">'+(u.nivel||'—')+'</div></div>';
+  html += '<div class="col-rank"><div class="rank-num">'+(idx+1)+'</div></div>';
 
   /* identity */
   html += '<div class="col-id"><div class="unidade-nome">'+u.nome+'</div><div class="unidade-code">Conformidade: '+(taxa)+'%</div></div>';
