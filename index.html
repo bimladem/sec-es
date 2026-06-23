@@ -18,10 +18,9 @@
   --paper-3: #f1f3f5;
   --line: #d1d1d1;
   --line-2: #b1b1b1;
-  --n1: #70AD47; --n1-bg: #e8f5e9;
-  --n2: #FFC000; --n2-bg: #fff8e1;
-  --n3: #ED7D31; --n3-bg: #fff3e0;
-  --n4: #C00000; --n4-bg: #ffebee;
+  --n1: #ff2222; --n1-bg: #fff2f2;
+  --n2: #ff7b00; --n2-bg: #fff3e6;
+  --n3: #ffcc00; --n3-bg: #fffbe6;
   --bar-blue: #2b2fd8;
   --bar-orange: #d8722a;
   --bar-track: #e4e4e8;
@@ -92,7 +91,6 @@ body {
 .stat-card.n1 .stat-card-val { color: var(--n1); }
 .stat-card.n2 .stat-card-val { color: var(--n2); }
 .stat-card.n3 .stat-card-val { color: var(--n3); }
-.stat-card.n4 .stat-card-val { color: var(--n4); }
 
 /* ── FILTER BAR ── */
 .filter-bar {
@@ -158,15 +156,14 @@ body {
 .pill-n1 { background: var(--n1-bg); color: var(--n1); }
 .pill-n2 { background: var(--n2-bg); color: var(--n2); }
 .pill-n3 { background: var(--n3-bg); color: var(--n3); }
-.pill-n4 { background: var(--n4-bg); color: var(--n4); }
 
 /* ── PROGRESS MINI ── */
 .mini-prog { flex: 1; display: flex; flex-direction: column; gap: 8px; width: 100%; }
 .mini-row { display: flex; align-items: center; gap: 8px; }
 .mini-track { flex: 1; height: 6px; background: var(--bar-track); border-radius: 99px; overflow: hidden; }
 .mini-fill { height: 100%; border-radius: 99px; }
-.fill-green { background: var(--n1); }
-.fill-red { background: var(--n4); }
+.fill-green { background: #70AD47; }
+.fill-red { background: #ff2222; }
 .mini-pct { font-size: 12px; font-weight: 700; min-width: 34px; text-align: right; }
 
 /* ── DETAIL BTN ── */
@@ -214,9 +211,9 @@ body {
 }
 .metric-group:last-child { border-right: none; }
 .metric-group.is-total { background: #e8f5e9; }
-.metric-group.is-total .mg-val { color: var(--n1); }
-.metric-group.is-total-nok { background: #ffebee; }
-.metric-group.is-total-nok .mg-val { color: var(--n4); }
+.metric-group.is-total .mg-val { color: #70AD47; }
+.metric-group.is-total-nok { background: #fff2f2; }
+.metric-group.is-total-nok .mg-val { color: #ff2222; }
 .col-metrics-sep { width: 2px; background: var(--line-2); align-self: stretch; flex-shrink: 0; }
 .mg-label { font-size: 11px; font-weight: 800; letter-spacing: 0.5px; text-transform: uppercase; color: var(--ink-3); white-space: nowrap; margin-bottom: 3px; }
 .mg-val { font-size: 24px; font-weight: 700; color: var(--ink); line-height: 1; }
@@ -382,7 +379,7 @@ function fmt(n) { return Number(n||0).toLocaleString('pt-PT'); }
 function pillCls(nivel) {
   if (!nivel) return 'pill-n1';
   var n = String(nivel).toUpperCase();
-  return n === 'N1' ? 'pill-n1' : n === 'N2' ? 'pill-n2' : n === 'N3' ? 'pill-n3' : 'pill-n4';
+  return n === 'N1' ? 'pill-n1' : n === 'N2' ? 'pill-n2' : 'pill-n3';
 }
 function svgArrow() {
   return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>';
@@ -441,17 +438,14 @@ function renderHome() {
   var n1 = unidades.filter(function(u){ return (u.nivel||'').toUpperCase()==='N1'; }).length;
   var n2 = unidades.filter(function(u){ return (u.nivel||'').toUpperCase()==='N2'; }).length;
   var n3 = unidades.filter(function(u){ return (u.nivel||'').toUpperCase()==='N3'; }).length;
-  var n4 = unidades.filter(function(u){ return (u.nivel||'').toUpperCase()==='N4'; }).length;
 
   var html = '';
 
-  /* Stats */
+  /* Stats - 3 níveis com descrições corretas */
   html += '<div class="home-stats">';
-  html += statCard('Total Unidades', unidades.length, 'Auditorias ativas', '');
-  html += statCard('Nível 1 (Excelente)', n1, '≥95% conformidade', 'n1');
-  html += statCard('Nível 2 (Bom)', n2, '80-94% conformidade', 'n2');
-  html += statCard('Nível 3 (Regular)', n3, '60-79% conformidade', 'n3');
-  html += statCard('Nível 4 (Crítico)', n4, '<60% conformidade', 'n4');
+  html += statCard('NÍVEL 1', n1, '0–20% conformidade', 'n1');
+  html += statCard('NÍVEL 2', n2, '21–40% conformidade', 'n2');
+  html += statCard('NÍVEL 3', n3, '41–50% conformidade', 'n3');
   html += '</div>';
 
   /* Filter bar */
@@ -459,10 +453,9 @@ function renderHome() {
   html += '<span class="filter-label">Mostrar:</span>';
   html += '<button class="filter-btn active" data-filter="all" onclick="setFilter(\'all\')">Todas ('+unidades.length+')</button>';
   html += '<div class="filter-divider"></div>';
-  html += '<button class="filter-btn" data-filter="n1" onclick="setFilter(\'n1\')">🟢 N1 ('+n1+')</button>';
-  html += '<button class="filter-btn" data-filter="n2" onclick="setFilter(\'n2\')">🟡 N2 ('+n2+')</button>';
-  html += '<button class="filter-btn" data-filter="n3" onclick="setFilter(\'n3\')">🟠 N3 ('+n3+')</button>';
-  html += '<button class="filter-btn" data-filter="n4" onclick="setFilter(\'n4\')">🔴 N4 ('+n4+')</button>';
+  html += '<button class="filter-btn" data-filter="n1" onclick="setFilter(\'n1\')">🔴 N1 ('+n1+')</button>';
+  html += '<button class="filter-btn" data-filter="n2" onclick="setFilter(\'n2\')">🟠 N2 ('+n2+')</button>';
+  html += '<button class="filter-btn" data-filter="n3" onclick="setFilter(\'n3\')">🟡 N3 ('+n3+')</button>';
   html += '</div>';
 
   /* Table */
@@ -479,15 +472,14 @@ function renderHome() {
   html += '<div id="ht-body"></div>';
   html += '</div>';
 
-  /* Bottom */
+  /* Bottom - 3 níveis com descrições corretas */
   html += '<div class="bottom-bar">';
   html += '<div class="level-legend"><div class="level-legend-title">Classificação de Conformidade</div><div class="level-items">';
-  html += '<div class="level-item-row"><div class="level-dot pill-n1">N1</div><span>≥95% conformidade (Excelente)</span></div>';
-  html += '<div class="level-item-row"><div class="level-dot pill-n2">N2</div><span>80-94% conformidade (Bom)</span></div>';
-  html += '<div class="level-item-row"><div class="level-dot pill-n3">N3</div><span>60-79% conformidade (Regular)</span></div>';
-  html += '<div class="level-item-row"><div class="level-dot pill-n4">N4</div><span><60% conformidade (Crítico)</span></div>';
+  html += '<div class="level-item-row"><div class="level-dot pill-n1">N1</div><span>0–20% conformidade</span></div>';
+  html += '<div class="level-item-row"><div class="level-dot pill-n2">N2</div><span>21–40% conformidade</span></div>';
+  html += '<div class="level-item-row"><div class="level-dot pill-n3">N3</div><span>41–50% conformidade</span></div>';
   html += '</div></div>';
-  html += '<div class="action-banner"><div class="action-icon">⚠</div><div><div class="action-title">Ação Recomendada</div><div class="action-desc">Contactar urgentemente responsáveis das unidades N4 e N3. Clique em "Detalhe" para ver categorias e itens auditados.</div></div></div>';
+  html += '<div class="action-banner"><div class="action-icon">⚠</div><div><div class="action-title">Ação Recomendada</div><div class="action-desc">Contactar urgentemente responsáveis das unidades N1 e N2. Clique em "Detalhe" para ver categorias e itens auditados.</div></div></div>';
   html += '</div>';
 
   document.getElementById('home-screen').innerHTML = html;
@@ -519,7 +511,6 @@ function renderHomeTable() {
     if (f === 'n1') return nivel === 'N1';
     if (f === 'n2') return nivel === 'N2';
     if (f === 'n3') return nivel === 'N3';
-    if (f === 'n4') return nivel === 'N4';
     return true;
   });
 
@@ -559,7 +550,7 @@ function renderHomeTable() {
       /* NOK */
       html += '<div class="ht-td" style="flex-direction:column;gap:3px">';
       html += '<div style="font-size:12px;font-weight:800;letter-spacing:0.5px;text-transform:uppercase;color:var(--ink-4)">Não Conformes</div>';
-      html += '<div style="font-size:13px;color:var(--n4);font-weight:700">'+fmt(totalNOK)+' NOK</div>';
+      html += '<div style="font-size:13px;color:#ff2222;font-weight:700">'+fmt(totalNOK)+' NOK</div>';
       html += '</div>';
 
       /* progress */
@@ -567,12 +558,12 @@ function renderHomeTable() {
       html += '<div class="mini-row">'
         +'<span style="font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:0.4px;color:var(--ink-4);min-width:60px">Conformidade</span>'
         +'<div class="mini-track"><div class="mini-fill fill-green" style="width:'+taxa+'%"></div></div>'
-        +'<span class="mini-pct" style="color:var(--n1)">'+taxa+'%</span>'
+        +'<span class="mini-pct" style="color:#70AD47">'+taxa+'%</span>'
         +'</div>';
       html += '<div class="mini-row">'
         +'<span style="font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:0.4px;color:var(--ink-4);min-width:60px">Não Conforme</span>'
         +'<div class="mini-track"><div class="mini-fill fill-red" style="width:'+(100-taxa)+'%"></div></div>'
-        +'<span class="mini-pct" style="color:var(--n4)">'+(100-taxa)+'%</span>'
+        +'<span class="mini-pct" style="color:#ff2222">'+(100-taxa)+'%</span>'
         +'</div>';
       html += '</div></div>';
 
@@ -652,9 +643,9 @@ function renderDetail(idx) {
 
   /* Legend */
   html += '<div class="legend-bar">';
-  html += '<div class="legend-item"><div class="legend-dot" style="background:var(--n1)"></div><span style="font-weight:700">OK</span> = Conforme</div>';
+  html += '<div class="legend-item"><div class="legend-dot" style="background:#70AD47"></div><span style="font-weight:700">OK</span> = Conforme</div>';
   html += '<div class="legend-sep"></div>';
-  html += '<div class="legend-item"><div class="legend-dot" style="background:var(--n4)"></div><span style="font-weight:700">NOK</span> = Não Conforme</div>';
+  html += '<div class="legend-item"><div class="legend-dot" style="background:#ff2222"></div><span style="font-weight:700">NOK</span> = Não Conforme</div>';
   html += '</div>';
 
   document.getElementById('detail-app').innerHTML = html;
@@ -709,9 +700,9 @@ function buildItensHTML(u, catIdx, itemIdx, unidadeIdx) {
   html += '</select></div>';
 
   html += '<div class="vals-grid">';
-  html += valCard('Estado', item.estado, item.estado === 'OK' ? 'color:var(--n1)' : 'color:var(--n4)');
-  html += valCard('Status Ação', item.status_acao, item.status_acao === 'Concluida' ? 'color:var(--n1)' : item.status_acao === 'Em_Atraso' ? 'color:var(--n4)' : 'color:var(--n3)');
-  html += valCard('Dias Atraso', fmt(item.dias_atraso), item.dias_atraso > 0 ? 'color:var(--n4)' : 'color:var(--n1)');
+  html += valCard('Estado', item.estado, item.estado === 'OK' ? 'color:#70AD47' : 'color:#ff2222');
+  html += valCard('Status Ação', item.status_acao, item.status_acao === 'Concluida' ? 'color:#70AD47' : item.status_acao === 'Em_Atraso' ? 'color:#ff2222' : 'color:#ff7b00');
+  html += valCard('Dias Atraso', fmt(item.dias_atraso), item.dias_atraso > 0 ? 'color:#ff2222' : 'color:#70AD47');
   html += valCard('Responsável', item.responsavel_acao || 'N/A', '');
   html += '</div>';
 
@@ -729,8 +720,8 @@ function buildItensHTML(u, catIdx, itemIdx, unidadeIdx) {
   html += '<div style="font-size:13px;font-weight:700;color:var(--ink-3);margin-bottom:14px">📊 Distribuição de Conformidade por Categoria</div>';
   html += '<canvas id="catChart-'+unidadeIdx+'" style="max-height:200px"></canvas>';
   html += '<div class="chart-legend">';
-  html += '<div class="legend-item"><div class="legend-dot" style="background:var(--n1)"></div>Conforme (OK)</div>';
-  html += '<div class="legend-item"><div class="legend-dot" style="background:var(--n4)"></div>Não Conforme (NOK)</div>';
+  html += '<div class="legend-item"><div class="legend-dot" style="background:#70AD47"></div>Conforme (OK)</div>';
+  html += '<div class="legend-item"><div class="legend-dot" style="background:#ff2222"></div>Não Conforme (NOK)</div>';
   html += '</div></div>';
 
   return html;
@@ -772,7 +763,7 @@ function buildItensChart(unidadeIdx, catIdx, itemIdx) {
         {
           label: 'NOK',
           data: [nokCount],
-          backgroundColor: 'rgba(192,0,0,.85)',
+          backgroundColor: 'rgba(255,34,34,.85)',
           borderRadius: 4,
           borderWidth: 0,
           barPercentage: 0.6,
