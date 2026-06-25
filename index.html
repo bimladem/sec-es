@@ -570,6 +570,31 @@ function buildAtual(u,ui,ci,src){
   h+='<div class="chart-wrap"><div style="font-size:12px;font-weight:700;color:var(--ink-3);margin-bottom:12px">Distribuição de itens — Categoria '+cat.categoria+'</div>';
   h+='<canvas id="chart-'+ui+'" style="max-height:180px"></canvas>';
   h+='<div class="chart-leg"><div class="leg-item"><div class="leg-dot" style="background:var(--ok)"></div>Conformes</div><div class="leg-item"><div class="leg-dot" style="background:var(--n1)"></div>Não conformes</div><div class="leg-item"><div class="leg-dot" style="background:var(--n2)"></div>Em atraso</div></div></div>';
+
+  /* Nova Tabela de Itens abaixo do gráfico */
+  var itens = cat.itens || [];
+  if(itens.length > 0){
+    h += '<div style="margin-top:24px;font-size:12px;font-weight:700;color:var(--ink-3);margin-bottom:12px">Lista de Itens — Categoria ' + cat.categoria + '</div>';
+    h += '<div class="hist-table-wrap"><table class="hist-table"><thead><tr>';
+    h += '<th>Descrição</th><th>Responsável</th><th class="c">Prazo</th><th class="c">Status Ação</th><th>Medida Corretiva</th>';
+    h += '</tr></thead><tbody>';
+    itens.forEach(function(item){
+      var sCls='s-na', sTxt='N/A';
+      if(item.status_acao==='Concluida'){sCls='s-ok';sTxt='Concluída';}
+      else if(item.status_acao==='Em_Atraso'){sCls='s-atraso';sTxt='Em Atraso';}
+      else if(item.status_acao==='Em_Andamento'){sCls='s-andamento';sTxt='Em Andamento';}
+      
+      h += '<tr>';
+      h += '<td class="td-desc">' + (item.descricao || '—') + '</td>';
+      h += '<td class="td-resp">' + (item.responsavel_acao || '—') + '</td>';
+      h += '<td class="td-prazo">' + fmtData(item.prazo) + '</td>';
+      h += '<td class="td-status"><span class="status-badge ' + sCls + '">' + sTxt + '</span></td>';
+      h += '<td class="td-mc">' + (item.medida_corretiva || '—') + '</td>';
+      h += '</tr>';
+    });
+    h += '</tbody></table></div>';
+  }
+
   return h;
 }
 
