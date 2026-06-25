@@ -59,11 +59,11 @@ body{font-family:'DM Sans',sans-serif;background:var(--paper);color:var(--ink);f
 
 /* ── HOME TABLE ── */
 .home-table{background:#fff;border:1px solid var(--line);border-radius:14px;overflow:hidden;box-shadow:var(--shadow);}
-.ht-head{display:grid;grid-template-columns:72px 200px 1fr 1fr 160px 100px 130px;background:#f1f3f5;border-bottom:1px solid var(--line);}
+.ht-head{display:grid;grid-template-columns:72px 200px 1fr 1fr 200px 130px;background:#f1f3f5;border-bottom:1px solid var(--line);}
 .ht-th{padding:13px 10px;font-size:12px;font-weight:800;letter-spacing:.5px;text-transform:uppercase;color:var(--ink);text-align:center;border-right:1px solid var(--line);white-space:nowrap;}
 .ht-th:last-child{border-right:none;}
 .ht-th.L{text-align:left;padding-left:14px;}
-.ht-row{display:grid;grid-template-columns:72px 200px 1fr 1fr 160px 100px 130px;border-bottom:1px solid var(--line);cursor:pointer;transition:background .12s;}
+.ht-row{display:grid;grid-template-columns:72px 200px 1fr 1fr 200px 130px;border-bottom:1px solid var(--line);cursor:pointer;transition:background .12s;}
 .ht-row:last-child{border-bottom:none;}
 .ht-row:hover{background:#f1f3f5;}
 .ht-td{padding:15px 10px;display:flex;align-items:center;justify-content:center;border-right:1px solid var(--line);font-size:14px;color:var(--ink);font-weight:600;}
@@ -199,7 +199,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--paper);color:var(--ink);f
 .leg-sep{width:1px;height:14px;background:var(--line-2);}
 
 @media(max-width:1024px){
-  .ht-head,.ht-row{grid-template-columns:60px 160px 1fr 1fr 130px 85px 110px;}
+  .ht-head,.ht-row{grid-template-columns:60px 160px 1fr 1fr 160px 110px;}
   .ht-th,.ht-td{font-size:11px;padding:10px 6px;}
   .vals-grid{grid-template-columns:repeat(2,1fr);}
   .hist-stats{grid-template-columns:repeat(2,1fr);}
@@ -348,7 +348,6 @@ function renderHome(){
   h+='<div class="ht-th">OK / Total</div>';
   h+='<div class="ht-th">Ações atraso</div>';
   h+='<div class="ht-th">Taxa conformidade</div>';
-  h+='<div class="ht-th">Nível</div>';
   h+='<div class="ht-th">Detalhe</div>';
   h+='</div>';
   h+='<div id="ht-body"></div>';
@@ -403,7 +402,6 @@ function renderTable(){
       h+='<div class="ht-row" onclick="goDetail('+i+')">';
       h+='<div class="ht-td" style="flex-direction:column;gap:5px;background:#f1f3f5">';
       h+='<div style="font-family:\'DM Serif Display\',serif;font-size:22px;color:var(--ink-2)">'+(i+1)+'</div>';
-      h+='<div class="pill '+pc+'">'+(u.nivel||'—')+'</div>';
       h+='</div>';
       h+='<div class="ht-td L" style="flex-direction:column;align-items:flex-start;gap:2px">';
       h+='<div style="font-weight:700;font-size:14px">'+u.nome+'</div>';
@@ -420,7 +418,6 @@ function renderTable(){
       h+='<div class="ht-td"><div class="mini-prog">';
       h+='<div class="mini-row"><div class="mini-track"><div class="mini-fill f-blue" style="width:'+taxa+'%"></div></div><span class="mini-pct" style="color:'+corTaxa+'">'+taxa+'%</span></div>';
       h+='</div></div>';
-      h+='<div class="ht-td"><div class="pill '+pc+'">'+(u.nivel||'—')+'</div></div>';
       h+='<div class="ht-td" onclick="event.stopPropagation()"><button class="btn-det" onclick="goDetail('+i+')">Detalhe '+svgArr()+'</button></div>';
       h+='</div>';
     });
@@ -451,7 +448,7 @@ function renderDetail(i){
     var t=c.totaisCategoria||{};
     var sel=(_catSel[i]===ci);
     h+='<div class="cat-group'+(sel?' sel':'')+'" onclick="selCat('+i+','+ci+')" title="Categoria '+c.categoria+'">';
-    h+='<div class="cg-label">Cat. '+c.categoria+'</div>';
+    h+='<div class="cg-label">Categoria '+c.categoria+'</div>';
     h+='<div class="cg-taxa" style="color:'+(c.taxa>=70?'var(--ok)':c.taxa>=40?'var(--n2)':'var(--n1)')+'">'+c.taxa+'%</div>';
     if(t.acoes_atraso>0) h+='<div class="cg-atraso">'+t.acoes_atraso+' atrasos</div>';
     else h+='<div style="font-size:10px;color:var(--ok)">✓ OK</div>';
