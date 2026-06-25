@@ -143,27 +143,44 @@ body{font-family:'DM Sans',sans-serif;background:var(--paper);color:var(--ink);f
 .leg-item{display:flex;align-items:center;gap:7px;font-size:12px;font-weight:600;color:var(--ink-3);}
 .leg-dot{width:11px;height:11px;border-radius:3px;flex-shrink:0;}
 
-/* ── HISTÓRICO ── */
-.hist-wrap{display:flex;flex-direction:column;gap:0;}
-.hist-row{display:grid;grid-template-columns:28px 100px 1fr;align-items:center;padding:10px 0;border-bottom:1px solid var(--line);gap:10px;}
-.hist-row:last-child{border-bottom:none;}
-.hist-idx{font-family:'DM Serif Display',serif;font-size:15px;color:var(--ink-4);text-align:center;}
-.hist-item{font-size:12px;font-weight:700;color:var(--ink-2);}
-.hist-item-sub{font-size:11px;color:var(--ink-4);margin-top:1px;}
-.hist-right{display:flex;align-items:center;gap:10px;}
-.hist-status{padding:2px 8px;border-radius:99px;font-size:10px;font-weight:700;white-space:nowrap;}
-.s-ok{background:var(--ok-bg);color:var(--ok);}
-.s-atraso{background:var(--n1-bg);color:var(--n1);}
-.s-andamento{background:#e8f0fe;color:#1a56c4;}
-.s-na{background:#f1f3f5;color:#888;}
-.hist-dias{font-size:11px;color:var(--n1);font-weight:700;min-width:60px;text-align:right;}
-.hist-prazo{font-size:11px;color:var(--ink-4);min-width:80px;text-align:right;}
-
-/* Hist summary cards */
+/* ── HISTÓRICO TABLE ── */
 .hist-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:16px;}
 .hs-card{background:#fff;border:1px solid var(--line);border-radius:8px;padding:12px;text-align:center;}
 .hs-lbl{font-size:10px;font-weight:800;text-transform:uppercase;color:var(--ink-4);margin-bottom:3px;}
 .hs-val{font-size:22px;font-weight:700;font-family:'DM Serif Display',serif;}
+
+.hist-table-wrap{background:#fff;border:1px solid var(--line);border-radius:12px;overflow:hidden;box-shadow:var(--shadow);}
+.hist-table{width:100%;border-collapse:collapse;}
+.hist-table thead tr{background:#2a2a2a;}
+.hist-table thead th{padding:10px 12px;font-size:11px;font-weight:800;letter-spacing:.6px;text-transform:uppercase;color:#fff;text-align:left;white-space:nowrap;border-right:1px solid rgba(255,255,255,.08);}
+.hist-table thead th:last-child{border-right:none;}
+.hist-table thead th.c{text-align:center;}
+.hist-table tbody tr{border-bottom:1px solid var(--line);transition:background .1s;}
+.hist-table tbody tr:last-child{border-bottom:none;}
+.hist-table tbody tr:hover{background:#f8f9fa;}
+.hist-table tbody td{padding:11px 12px;font-size:13px;color:#555;font-weight:600;vertical-align:middle;border-right:1px solid var(--line);}
+.hist-table tbody td:last-child{border-right:none;}
+.hist-table tbody td.c{text-align:center;}
+.hist-table .td-idx{font-family:'DM Serif Display',serif;font-size:15px;color:var(--ink-4);text-align:center;width:36px;}
+.hist-table .td-code{font-size:12px;font-weight:700;color:var(--ink-2);white-space:nowrap;}
+.hist-table .td-desc{font-size:12px;color:var(--ink-3);max-width:260px;}
+.hist-table .td-mc{font-size:11px;color:var(--ink-4);max-width:200px;}
+.hist-table .td-resp{font-size:11px;color:var(--ink-4);white-space:nowrap;}
+.hist-table .td-prazo{font-size:11px;color:var(--ink-4);white-space:nowrap;text-align:center;}
+.hist-table .td-conc{font-size:11px;color:var(--ok);white-space:nowrap;text-align:center;}
+.hist-table .td-atraso{font-size:12px;font-weight:700;color:var(--n1);text-align:center;white-space:nowrap;}
+.hist-table .td-estado{text-align:center;}
+.hist-table .td-status{text-align:center;}
+
+.est-badge{display:inline-block;padding:2px 9px;border-radius:99px;font-size:11px;font-weight:700;}
+.est-ok{background:var(--ok-bg);color:var(--ok);}
+.est-nok{background:var(--n1-bg);color:var(--n1);}
+
+.status-badge{display:inline-block;padding:2px 9px;border-radius:99px;font-size:10px;font-weight:700;white-space:nowrap;}
+.s-ok{background:var(--ok-bg);color:var(--ok);}
+.s-atraso{background:var(--n1-bg);color:var(--n1);}
+.s-andamento{background:#e8f0fe;color:#1a56c4;}
+.s-na{background:#f1f3f5;color:#888;}
 
 /* ── BOTTOM ── */
 .bottom-bar{margin-top:20px;display:flex;gap:14px;flex-wrap:wrap;}
@@ -186,6 +203,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--paper);color:var(--ink);f
   .ht-th,.ht-td{font-size:11px;padding:10px 6px;}
   .vals-grid{grid-template-columns:repeat(2,1fr);}
   .hist-stats{grid-template-columns:repeat(2,1fr);}
+  .hist-table-wrap{overflow-x:auto;}
 }
 </style>
 </head>
@@ -241,14 +259,9 @@ fetch('dados.json?t='+Date.now())
   });
 
 function init(json){
-  /* suporta {unidades:[]} ou {lojas:[]} */
   var raw = json.unidades || json.lojas || [];
-
-  /* normalizar: mapear campos antigos → novos se necessário */
   _U = raw.map(function(u){
-    /* se já tem categorias, usar directamente */
     if(u.categorias) return u;
-    /* compatibilidade com formato lojas/areas antigo */
     var cats = [];
     if(u.areas){
       u.areas.forEach(function(a){
@@ -260,7 +273,6 @@ function init(json){
     return Object.assign({},u,{categorias:cats});
   });
 
-  /* calcular taxa global por unidade com base nas categorias */
   _U.forEach(function(u){
     var totalOK=0,totalItens=0,totalNOK=0,totalAtraso=0;
     (u.categorias||[]).forEach(function(c){
@@ -309,7 +321,6 @@ function renderHome(){
   var n1=_U.filter(function(u){return String(u.nivel||'').toUpperCase()==='N1';}).length;
   var n2=_U.filter(function(u){return String(u.nivel||'').toUpperCase()==='N2';}).length;
   var n3=_U.filter(function(u){return String(u.nivel||'').toUpperCase()==='N3';}).length;
-  var n4=_U.filter(function(u){return String(u.nivel||'').toUpperCase()==='N4';}).length;
   var totalAtraso=_U.reduce(function(s,u){return s+(u._totalAtraso||0);},0);
 
   var h='';
@@ -318,7 +329,6 @@ function renderHome(){
   h+=sc('Nível 1',n1,'Crítico','acc-red');
   h+=sc('Nível 2',n2,'Atenção','acc-amber');
   h+=sc('Nível 3',n3,'Moderado','acc-yellow');
-  h+=sc('N4 / OK',n4,'Bom estado','acc-blue');
   h+=sc('Ações atraso',totalAtraso,'Em todas as unidades','acc-red');
   h+='</div>';
 
@@ -329,7 +339,6 @@ function renderHome(){
   h+=fb('🔴 N1 ('+n1+')','n1');
   h+=fb('🟠 N2 ('+n2+')','n2');
   h+=fb('🟡 N3 ('+n3+')','n3');
-  h+=fb('🔵 N4 ('+n4+')','n4');
   h+='</div>';
 
   h+='<div class="home-table">';
@@ -350,7 +359,6 @@ function renderHome(){
   h+='<div class="ll-row"><div class="ll-dot p-n1">N1</div><span>Crítico — requer ação imediata</span></div>';
   h+='<div class="ll-row"><div class="ll-dot p-n2">N2</div><span>Atenção — monitorizar de perto</span></div>';
   h+='<div class="ll-row"><div class="ll-dot p-n3">N3</div><span>Moderado — acompanhamento</span></div>';
-  h+='<div class="ll-row"><div class="ll-dot p-n4">N4</div><span>Bom — manter vigilância</span></div>';
   h+='</div></div>';
   h+='<div class="action-banner"><div class="action-icon">⚠</div><div><div class="act-title">Ação Recomendada</div><div class="act-desc">Clique em "Detalhe" para ver as categorias A–E, o histórico de avaliações e ações em atraso.</div></div></div>';
   h+='</div>';
@@ -377,7 +385,6 @@ function renderTable(){
     if(f==='n1') return n==='N1';
     if(f==='n2') return n==='N2';
     if(f==='n3') return n==='N3';
-    if(f==='n4') return n==='N4';
     return true;
   });
   var h='';
@@ -394,33 +401,26 @@ function renderTable(){
       var corTaxa=taxa>=70?'var(--ok)':taxa>=40?'var(--n2)':'var(--n1)';
 
       h+='<div class="ht-row" onclick="goDetail('+i+')">';
-      /* rank */
       h+='<div class="ht-td" style="flex-direction:column;gap:5px;background:#f1f3f5">';
       h+='<div style="font-family:\'DM Serif Display\',serif;font-size:22px;color:var(--ink-2)">'+(i+1)+'</div>';
       h+='<div class="pill '+pc+'">'+(u.nivel||'—')+'</div>';
       h+='</div>';
-      /* nome */
       h+='<div class="ht-td L" style="flex-direction:column;align-items:flex-start;gap:2px">';
       h+='<div style="font-weight:700;font-size:14px">'+u.nome+'</div>';
       h+='<div style="font-size:11px;color:var(--ink-4)">'+(u.localizacao||'')+'</div>';
       h+='</div>';
-      /* OK/Total */
       h+='<div class="ht-td" style="flex-direction:column;gap:2px">';
       h+='<div style="font-size:15px;font-weight:700"><span style="color:var(--ok)">'+fmt(totalOK)+'</span> / '+fmt(totalItens)+'</div>';
       h+='<div style="font-size:11px;color:var(--ink-4)">itens conformes</div>';
       h+='</div>';
-      /* atraso */
       h+='<div class="ht-td" style="flex-direction:column;gap:2px">';
       h+='<div style="font-size:15px;font-weight:700;color:'+(atraso>0?'var(--n1)':'var(--ok)')+'">'+fmt(atraso)+'</div>';
       h+='<div style="font-size:11px;color:var(--ink-4)">ações em atraso</div>';
       h+='</div>';
-      /* taxa */
       h+='<div class="ht-td"><div class="mini-prog">';
       h+='<div class="mini-row"><div class="mini-track"><div class="mini-fill f-blue" style="width:'+taxa+'%"></div></div><span class="mini-pct" style="color:'+corTaxa+'">'+taxa+'%</span></div>';
       h+='</div></div>';
-      /* nivel */
       h+='<div class="ht-td"><div class="pill '+pc+'">'+(u.nivel||'—')+'</div></div>';
-      /* btn */
       h+='<div class="ht-td" onclick="event.stopPropagation()"><button class="btn-det" onclick="goDetail('+i+')">Detalhe '+svgArr()+'</button></div>';
       h+='</div>';
     });
@@ -442,13 +442,10 @@ function renderDetail(i){
 
   var h='<div class="det-card">';
   h+='<div class="card-top">';
-  /* rank */
   h+='<div class="col-rank"><div class="rank-num">'+(i+1)+'</div><div class="pill '+pc+'">'+(u.nivel||'—')+'</div></div>';
-  /* id */
   h+='<div class="col-id"><div class="u-nome">'+u.nome+'</div><div class="u-sub">Taxa global: '+taxa+'% · '+totalOK+'/'+totalItens+' conformes</div>';
   if(atraso>0) h+='<div class="u-sub" style="color:var(--n1);margin-top:4px">⚠ '+atraso+' ações em atraso</div>';
   h+='</div>';
-  /* categorias */
   h+='<div class="col-cats">';
   cats.forEach(function(c,ci){
     var t=c.totaisCategoria||{};
@@ -461,7 +458,6 @@ function renderDetail(i){
     h+='</div>';
   });
   h+='</div>';
-  /* right */
   h+='<div class="col-right"><div class="prog-block">';
   h+='<div class="prog-row"><div class="prog-lr"><span class="prog-lbl">Conformidade</span><span class="prog-pct">'+taxa+'%</span></div><div class="prog-track"><div class="prog-fill f-blue" style="width:'+taxa+'%"></div></div></div>';
   var pctAtraso=totalNOK>0?Math.round(atraso/totalNOK*100):0;
@@ -469,11 +465,9 @@ function renderDetail(i){
   h+='</div></div>';
   h+='</div></div>';
 
-  /* cat panel */
   h+='<div class="cat-panel open" id="cp-'+i+'">';
   h+='<div class="cat-body" id="cb-'+i+'">'+buildCatBody(u,i,_catSel[i]||0)+'</div>';
   h+='</div>';
-
   h+='</div>';
 
   h+='<div class="leg-bar">';
@@ -485,17 +479,14 @@ function renderDetail(i){
   h+='</div>';
 
   document.getElementById('det-app').innerHTML=h;
-
   setTimeout(function(){buildChart(u,i,_catSel[i]||0);},150);
 }
 
 function selCat(ui,ci){
   _catSel[ui]=ci;
   _viewMode[ui]='atual';
-  /* update tab highlight */
   var groups=document.querySelectorAll('#det-app .cat-group');
   groups.forEach(function(g,gi){g.classList.toggle('sel',gi===ci);});
-  /* rebuild body */
   var u=_U[ui];
   var cb=document.getElementById('cb-'+ui);
   if(cb){
@@ -521,7 +512,6 @@ function setView(ui,mode){
 function buildCatBody(u,ui,ci){
   var cat=u.categorias&&u.categorias[ci];
   if(!cat) return '<p style="color:var(--ink-4)">Sem dados para esta categoria.</p>';
-  var t=cat.totaisCategoria||{};
   var h='<div class="cat-title">Categoria '+cat.categoria+' · '+u.nome+'</div>';
   h+='<div class="view-tabs">';
   h+='<button class="vtab'+(_viewMode[ui]==='atual'||!_viewMode[ui]?' on':'')+'" data-v="atual" onclick="setView('+ui+',\'atual\')">📋 Visão Atual</button>';
@@ -549,7 +539,7 @@ function buildAtual(u,ui,ci){
   h+='<div style="font-size:12px;font-weight:700;color:var(--ink-3);margin-bottom:12px">📊 Distribuição de itens — Categoria '+cat.categoria+'</div>';
   h+='<canvas id="chart-'+ui+'" style="max-height:180px"></canvas>';
   h+='<div class="chart-leg">';
-  h+='<div class="leg-item"><div class="leg-dot" style="background:#1a7a4a"></div>Conformes</div>';
+  h+='<div class="leg-item"><div class="leg-dot" style="background:var(--ok)"></div>Conformes</div>';
   h+='<div class="leg-item"><div class="leg-dot" style="background:var(--n1)"></div>Não conformes</div>';
   h+='<div class="leg-item"><div class="leg-dot" style="background:var(--n2)"></div>Em atraso</div>';
   h+='</div></div>';
@@ -561,11 +551,10 @@ function buildHistorico(u,ci){
   if(!cat||!cat.itens||cat.itens.length===0) return '<p style="color:var(--ink-4);font-size:13px">Sem histórico de itens.</p>';
 
   var itens=cat.itens;
-  /* estatísticas históricas */
-  var hOK=itens.filter(function(i){return i.estado==='OK';}).length;
-  var hNOK=itens.filter(function(i){return i.estado==='NOK';}).length;
-  var hAtraso=itens.filter(function(i){return i.status_acao==='Em_Atraso';}).length;
-  var hConc=itens.filter(function(i){return i.status_acao==='Concluida';}).length;
+  var hOK=itens.filter(function(it){return it.estado==='OK';}).length;
+  var hNOK=itens.filter(function(it){return it.estado==='NOK';}).length;
+  var hAtraso=itens.filter(function(it){return it.status_acao==='Em_Atraso';}).length;
+  var hConc=itens.filter(function(it){return it.status_acao==='Concluida';}).length;
 
   var h='<div class="hist-stats">';
   h+=hsc('Total avaliações',itens.length,'var(--ink)');
@@ -574,8 +563,21 @@ function buildHistorico(u,ci){
   h+=hsc('Ações em atraso',hAtraso,'var(--n2)');
   h+='</div>';
 
-  h+='<div style="font-size:12px;font-weight:700;color:var(--ink-3);margin-bottom:10px;letter-spacing:.4px;text-transform:uppercase">Registo de avaliações · Categoria '+cat.categoria+'</div>';
-  h+='<div class="hist-wrap">';
+  h+='<div class="hist-table-wrap">';
+  h+='<table class="hist-table">';
+  h+='<thead><tr>';
+  h+='<th class="c">#</th>';
+  h+='<th>Código</th>';
+  h+='<th>Descrição</th>';
+  h+='<th>Medida Corretiva</th>';
+  h+='<th>Responsável</th>';
+  h+='<th class="c">Estado</th>';
+  h+='<th class="c">Prazo</th>';
+  h+='<th class="c">Conclusão</th>';
+  h+='<th class="c">Dias Atraso</th>';
+  h+='<th class="c">Status Ação</th>';
+  h+='</tr></thead>';
+  h+='<tbody>';
 
   itens.forEach(function(item,idx){
     var sCls='s-na',sTxt='N/A';
@@ -584,25 +586,23 @@ function buildHistorico(u,ci){
     else if(item.status_acao==='Em_Andamento'){sCls='s-andamento';sTxt='Em Andamento';}
     else if(item.status_acao==='N_Aplicavel'){sCls='s-na';sTxt='N/A';}
 
-    var estadoCor=item.estado==='OK'?'var(--ok)':'var(--n1)';
+    var estCls=item.estado==='OK'?'est-ok':'est-nok';
 
-    h+='<div class="hist-row">';
-    h+='<div class="hist-idx">'+(idx+1)+'</div>';
-    h+='<div>';
-    h+='<div class="hist-item"><span style="font-weight:800;color:'+estadoCor+'">'+item.estado+'</span> — '+item.codigo_item+'</div>';
-    h+='<div class="hist-item-sub">'+item.descricao+'</div>';
-    if(item.medida_corretiva) h+='<div style="font-size:11px;color:var(--ink-4);margin-top:2px">→ '+item.medida_corretiva+'</div>';
-    if(item.responsavel_acao) h+='<div style="font-size:10px;color:var(--ink-4)">Resp.: '+item.responsavel_acao+'</div>';
-    h+='</div>';
-    h+='<div class="hist-right">';
-    if(item.prazo) h+='<div class="hist-prazo">Prazo: '+item.prazo+'</div>';
-    if(item.data_conclusao) h+='<div style="font-size:11px;color:var(--ok);min-width:80px;text-align:right">✓ '+item.data_conclusao+'</div>';
-    if(item.dias_atraso>0) h+='<div class="hist-dias">'+item.dias_atraso+' dias atraso</div>';
-    h+='<div class="hist-status '+sCls+'">'+sTxt+'</div>';
-    h+='</div>';
-    h+='</div>';
+    h+='<tr>';
+    h+='<td class="td-idx">'+(idx+1)+'</td>';
+    h+='<td class="td-code">'+(item.codigo_item||'—')+'</td>';
+    h+='<td class="td-desc">'+(item.descricao||'—')+'</td>';
+    h+='<td class="td-mc">'+(item.medida_corretiva||'—')+'</td>';
+    h+='<td class="td-resp">'+(item.responsavel_acao||'—')+'</td>';
+    h+='<td class="td-estado"><span class="est-badge '+estCls+'">'+(item.estado||'—')+'</span></td>';
+    h+='<td class="td-prazo">'+(item.prazo||'—')+'</td>';
+    h+='<td class="td-conc">'+(item.data_conclusao?'✓ '+item.data_conclusao:'—')+'</td>';
+    h+='<td class="td-atraso">'+(item.dias_atraso>0?item.dias_atraso+' dias':'—')+'</td>';
+    h+='<td class="td-status"><span class="status-badge '+sCls+'">'+sTxt+'</span></td>';
+    h+='</tr>';
   });
-  h+='</div>';
+
+  h+='</tbody></table></div>';
   return h;
 }
 
