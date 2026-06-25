@@ -468,9 +468,9 @@ function renderDetail(i){
   h+='</div>';
 
   h+='<div class="leg-bar">';
-  h+='<div class="leg-item"><div class="leg-dot" style="background:var(--ok)"></div>Conforme (OK)</div>';
+  h+='<div class="leg-item"><div class="leg-dot" style="background:var(--ok)"></div>Conforme</div>';
   h+='<div class="leg-sep"></div>';
-  h+='<div class="leg-item"><div class="leg-dot" style="background:var(--n1)"></div>Não conforme (NOK)</div>';
+  h+='<div class="leg-item"><div class="leg-dot" style="background:var(--n1)"></div>Não Conforme</div>';
   h+='<div class="leg-sep"></div>';
   h+='<div class="leg-item"><div class="leg-dot" style="background:var(--n2)"></div>Ação em atraso</div>';
   h+='</div>';
@@ -528,7 +528,7 @@ function buildAtual(u,ui,ci){
   var abertas=t.acoes_abertas||0,atraso=t.acoes_atraso||0;
   var h='<div class="vals-grid">';
   h+=vc('Total itens',fmt(total),'');
-  h+=vc('Conformes (OK)',fmt(ok),'color:var(--ok)');
+  h+=vc('Conformes',fmt(ok),'color:var(--ok)');
   h+=vc('Não conformes',fmt(nok),'color:var(--n1)');
   h+=vc('Ações em atraso',fmt(atraso),'color:var(--n2)');
   h+='</div>';
@@ -584,6 +584,7 @@ function buildHistorico(u,ci){
     else if(item.status_acao==='N_Aplicavel'){sCls='s-na';sTxt='N/A';}
 
     var estCls=item.estado==='OK'?'est-ok':'est-nok';
+    var estTxt=item.estado==='OK'?'Conforme':item.estado==='NOK'?'Não Conforme':(item.estado||'—');
 
     h+='<tr>';
     h+='<td class="td-idx">'+(idx+1)+'</td>';
@@ -591,7 +592,7 @@ function buildHistorico(u,ci){
     h+='<td class="td-desc">'+(item.descricao||'—')+'</td>';
     h+='<td class="td-mc">'+(item.medida_corretiva||'—')+'</td>';
     h+='<td class="td-resp">'+(item.responsavel_acao||'—')+'</td>';
-    h+='<td class="td-estado"><span class="est-badge '+estCls+'">'+(item.estado||'—')+'</span></td>';
+    h+='<td class="td-estado"><span class="est-badge '+estCls+'">'+estTxt+'</span></td>';
     h+='<td class="td-prazo">'+(item.prazo||'—')+'</td>';
     h+='<td class="td-conc">'+(item.data_conclusao?'✓ '+item.data_conclusao:'—')+'</td>';
     h+='<td class="td-atraso">'+(item.dias_atraso>0?item.dias_atraso+' dias':'—')+'</td>';
