@@ -245,6 +245,14 @@ function taxaCor(t){return t>=70?'var(--ok)':t>=40?'var(--n2)':'var(--n1)';}
 function svgArr(){return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="12" height="12"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>';}
 function fmtData(d){if(!d)return'—';var p=d.split('-');return p.length===3?p[2]+'/'+p[1]+'/'+p[0]:d;}
 
+/* Calcula o nível com base na taxa de conformidade */
+function calcNivel(taxa){
+  if(taxa<40) return 'N1';
+  if(taxa<60) return 'N2';
+  if(taxa<80) return 'N3';
+  return 'N4';
+}
+
 /* data */
 fetch('dados.json?t='+Date.now())
   .then(function(r){return r.json();}).then(init)
@@ -259,23 +267,67 @@ fetch('dados.json?t='+Date.now())
 function init(json){
   _U = json.unidades || [];
 
-  /* compatibilidade: se ainda usar formato antigo sem auditoria_atual */
+  /* Normalização: converte o formato do JSON (categorias directas na unidade)
+     para o formato esperado pelo dashboard (auditoria_atual + historico).
+     Também recalcula totaisGlobais a partir das categorias caso estejam a zero. */
   _U = _U.map(function(u){
-    if(!u.auditoria_atual && u.categorias){
-      u.auditoria_atual = {
-        id_auditoria:'—', data_auditoria:null,
-        taxa:u.taxa||0, nivel:u.nivel||'N4',
-        totaisGlobais:u.totaisGlobais||{totalItens:0,totalOK:0,totalNOK:0},
-        categorias:u.categorias
-      };
-      u.historico=[];
-    }
+    /* Se já vier no formato novo, não faz nada */
+    if(u.auditoria_atual) return u;
+
+    var cats = u.categorias || [];
+
+    /* Recalcula totaisGlobais a partir das categorias */
+    var totalItens = 0, totalOK = 0, totalNOK = 0;
+    cats.forEach(function(c){
+      var t = c.totaisCategoria || {};
+      totalItens += (t.total || 0);
+      totalOK    += (t.ok    || 0);
+      totalNOK   += (t.nok   || 0);
+    });
+
+    /* Calcula taxa global (média ponderada pelas categorias) */
+    var taxaGlobal = totalItens > 0 ? Math.round(totalOK / totalItens * 100) : (u.taxa || 0);
+    /* Usa a taxa do JSON se for diferente de zero, caso contrário usa a calculada */
+    if(u.taxa && u.taxa > 0) taxaGlobal = u.taxa;
+
+    /* Calcula nível global */
+    var nivelGlobal = u.nivel && u.nivel !== 'N4' ? u.nivel : calcNivel(taxaGlobal);
+    /* Se o nivel do JSON for N4 mas a taxa calculada indicar outro nível, recalcula */
+    if(!u.nivel || u.nivel === 'N4') nivelGlobal = calcNivel(taxaGlobal);
+    else nivelGlobal = u.nivel;
+
+    /* Recalcula nível de cada categoria se necessário */
+    cats = cats.map(function(c){
+      if(!c.nivel || c.nivel === 'N4'){
+        c.nivel = calcNivel(c.taxa || 0);
+      }
+      return c;
+    });
+
+    u.auditoria_atual = {
+      id_auditoria: u.id_unidade || '—',
+      data_auditoria: json.atualizadoEm ? json.atualizadoEm.split('T')[0] : null,
+      taxa: taxaGlobal,
+      nivel: nivelGlobal,
+      totaisGlobais: {
+        totalItens: totalItens,
+        totalOK: totalOK,
+        totalNOK: totalNOK
+      },
+      categorias: cats
+    };
+
+    /* Actualiza também o nível da unidade para o nível calculado */
+    u.taxa  = taxaGlobal;
+    u.nivel = nivelGlobal;
+    u.historico = [];
+
     return u;
   });
 
-  var d=new Date(json.atualizadoEm||Date.now());
-  document.getElementById('h-date').textContent='Atualizado: '+d.toLocaleDateString('pt-PT',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'});
-  document.getElementById('h-sub').textContent=_U.length+' unidades';
+  var d = new Date(json.atualizadoEm || Date.now());
+  document.getElementById('h-date').textContent = 'Atualizado: ' + d.toLocaleDateString('pt-PT',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'});
+  document.getElementById('h-sub').textContent = _U.length + ' unidades';
   renderHome();
 }
 
