@@ -345,7 +345,7 @@ function goDetail(i){
   document.getElementById('btn-back').classList.add('v');
   var u=_U[i];
   document.getElementById('h-title').textContent=u.nome;
-  document.getElementById('h-sub').textContent='Auditoria: '+(u.auditoria_atual.id_auditoria||'—')+' · '+fmtData(u.auditoria_atual.data_auditoria);
+  document.getElementById('h-sub').textContent='';
   _catSel[i]=0; _viewMode[i]='atual'; _audSel[i]=0;
   renderDetail(i);
   window.scrollTo(0,0);
@@ -413,7 +413,7 @@ function renderTable(){
       var atraso=(u.auditoria_atual.categorias||[]).reduce(function(s,c){return s+(c.totaisCategoria.acoes_atraso||0);},0);
       h+='<div class="ht-row" onclick="goDetail('+i+')">';
       h+='<div class="ht-td" style="flex-direction:column;gap:5px;background:#f1f3f5"><div style="font-family:\'DM Serif Display\',serif;font-size:22px;color:var(--ink-2)">'+(i+1)+'</div><div class="pill '+pc+'">'+(u.nivel||'—')+'</div></div>';
-      h+='<div class="ht-td L" style="flex-direction:column;align-items:flex-start;gap:2px"><div style="font-weight:700;font-size:14px">'+u.nome+'</div><div style="font-size:11px;color:var(--ink-4)">'+(u.localizacao||'')+'</div><div style="font-size:10px;color:var(--ink-4);margin-top:2px">Aud. '+(u.auditoria_atual.id_auditoria||'—')+' · '+fmtData(u.auditoria_atual.data_auditoria)+'</div></div>';
+      h+='<div class="ht-td L" style="flex-direction:column;align-items:flex-start;gap:2px"><div style="font-weight:700;font-size:14px">'+u.nome+'</div><div style="font-size:11px;color:var(--ink-4)">'+(u.localizacao||'')+'</div></div>';
       h+='<div class="ht-td" style="flex-direction:column;gap:2px"><div style="font-size:15px;font-weight:700"><span style="color:var(--ok)">'+fmt(ok)+'</span> / '+fmt(total)+'</div><div style="font-size:11px;color:var(--ink-4)">itens conformes</div></div>';
       h+='<div class="ht-td" style="flex-direction:column;gap:2px"><div style="font-size:15px;font-weight:700;color:'+(atraso>0?'var(--n1)':'var(--ok)')+'">'+fmt(atraso)+'</div><div style="font-size:11px;color:var(--ink-4)">ações em atraso</div></div>';
       h+='<div class="ht-td"><div class="mini-prog"><div class="mini-row"><div class="mini-track"><div class="mini-fill f-blue" style="width:'+taxa+'%"></div></div><span class="mini-pct" style="color:'+taxaCor(taxa)+'">'+taxa+'%</span></div></div></div>';
@@ -438,9 +438,9 @@ function renderDetail(i){
   var h='<div class="det-card"><div class="card-top">';
   h+='<div class="col-rank"><div class="rank-num">'+(i+1)+'</div><div class="pill '+pc+'">'+(u.nivel||'—')+'</div></div>';
   h+='<div class="col-id"><div class="u-nome">'+u.nome+'</div>';
-  h+='<div class="u-sub">Auditoria: <b>'+(atual.id_auditoria||'—')+'</b> · '+fmtData(atual.data_auditoria)+'</div>';
-  h+='<div class="u-sub">Taxa: '+taxa+'% · '+ok+'/'+total+' conformes</div>';
-  if(atraso>0) h+='<div class="u-sub" style="color:var(--n1);margin-top:3px">⚠ '+atraso+' ações em atraso</div>';
+  
+  
+  
   h+='</div>';
   h+='<div class="col-cats">';
   cats.forEach(function(c,ci){
@@ -526,7 +526,7 @@ function buildCatBody(u,ui,ci){
 
   var h='<div class="cat-title">Categoria '+cat.categoria+' · '+u.nome+'</div>';
   h+='<div class="view-tabs">';
-  h+='<button class="vtab'+(mode==='atual'?' on':'')+'" data-v="atual" onclick="setView('+ui+',\'atual\')">Auditoria Atual</button>';
+  h+='<button class="vtab'+(mode==='atual'?' on':'')+'" data-v="atual" onclick="setView('+ui+',\'atual\')">Visão Atual</button>';
   if(hist.length>0){
     h+='<button class="vtab'+(mode==='hist'?' on':'')+'" data-v="hist" onclick="setView('+ui+',\'hist\')">Histórico de Auditorias</button>';
   } else {
@@ -587,7 +587,7 @@ function buildHistContent(u,ui,ci,ai){
   var hNOK=itens.filter(function(it){return it.estado==='NOK';}).length;
   var hAtraso=itens.filter(function(it){return it.status_acao==='Em_Atraso';}).length;
 
-  var h='<div style="font-size:12px;color:var(--ink-4);margin-bottom:12px">Auditoria <b>'+audObj.id_auditoria+'</b> · '+fmtData(audObj.data_auditoria)+' · Taxa: <b style="color:'+taxaCor(audObj.taxa)+'">'+audObj.taxa+'%</b></div>';
+  var h='<div style="font-size:12px;color:var(--ink-4);margin-bottom:12px">Data: '+fmtData(audObj.data_auditoria)+' · Taxa: <b style="color:'+taxaCor(audObj.taxa)+'">'+audObj.taxa+'%</b></div>';
   h+='<div class="hist-stats">';
   h+=hsc('Total',itens.length,'var(--ink)');
   h+=hsc('Conformes',hOK,'var(--ok)');
