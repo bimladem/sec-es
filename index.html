@@ -15,7 +15,6 @@
   --n1:#ff2222;--n1-bg:#fff2f2;
   --n2:#ff7b00;--n2-bg:#fff3e6;
   --n3:#ffcc00;--n3-bg:#fffbe6;
-  --n4:#888;--n4-bg:#f1f3f5;
   --ok:#1a7a4a;--ok-bg:#e8f5ee;
   --blue:#2b2fd8;--orange:#d8722a;--track:#e4e4e8;
   --shadow:0 1px 4px rgba(0,0,0,.06),0 2px 12px rgba(0,0,0,.04);
@@ -74,7 +73,6 @@ body{font-family:'DM Sans',sans-serif;background:var(--paper);color:var(--ink);f
 .p-n1{background:var(--n1-bg);color:var(--n1);}
 .p-n2{background:var(--n2-bg);color:var(--n2);}
 .p-n3{background:var(--n3-bg);color:var(--n3);}
-.p-n4{background:var(--n4-bg);color:var(--n4);}
 .p-ok{background:var(--ok-bg);color:var(--ok);}
 
 /* MINI BARS */
@@ -240,7 +238,7 @@ var _U=[], _filter='all', _charts={}, _catSel={}, _viewMode={}, _audSel={};
 
 /* helpers */
 function fmt(n){return Number(n||0).toLocaleString('pt-PT');}
-function pCls(n){var s=String(n||'').toUpperCase();return s==='N1'?'p-n1':s==='N2'?'p-n2':s==='N3'?'p-n3':s==='N4'?'p-n4':'p-ok';}
+function pCls(n){var s=String(n||'').toUpperCase();return s==='N1'?'p-n1':s==='N2'?'p-n2':s==='N3'?'p-n3':'p-ok';}
 function taxaCor(t){return t>=70?'var(--ok)':t>=40?'var(--n2)':'var(--n1)';}
 function svgArr(){return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="12" height="12"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>';}
 function fmtData(d){if(!d)return'—';var p=d.split('-');return p.length===3?p[2]+'/'+p[1]+'/'+p[0]:d;}
@@ -250,7 +248,7 @@ function calcNivel(taxa){
   if(taxa<40) return 'N1';
   if(taxa<60) return 'N2';
   if(taxa<80) return 'N3';
-  return 'N4';
+  return 'OK';
 }
 
 /* data */
@@ -267,16 +265,11 @@ fetch('dados.json?t='+Date.now())
 function init(json){
   _U = json.unidades || [];
 
-  /* Normalização: converte o formato do JSON (categorias directas na unidade)
-     para o formato esperado pelo dashboard (auditoria_atual + historico).
-     Também recalcula totaisGlobais a partir das categorias caso estejam a zero. */
   _U = _U.map(function(u){
-    /* Se já vier no formato novo, não faz nada */
     if(u.auditoria_atual) return u;
 
     var cats = u.categorias || [];
 
-    /* Recalcula totaisGlobais a partir das categorias */
     var totalItens = 0, totalOK = 0, totalNOK = 0;
     cats.forEach(function(c){
       var t = c.totaisCategoria || {};
@@ -285,22 +278,13 @@ function init(json){
       totalNOK   += (t.nok   || 0);
     });
 
-    /* Calcula taxa global (média ponderada pelas categorias) */
     var taxaGlobal = totalItens > 0 ? Math.round(totalOK / totalItens * 100) : (u.taxa || 0);
-    /* Usa a taxa do JSON se for diferente de zero, caso contrário usa a calculada */
     if(u.taxa && u.taxa > 0) taxaGlobal = u.taxa;
 
-    /* Calcula nível global */
-    var nivelGlobal = u.nivel && u.nivel !== 'N4' ? u.nivel : calcNivel(taxaGlobal);
-    /* Se o nivel do JSON for N4 mas a taxa calculada indicar outro nível, recalcula */
-    if(!u.nivel || u.nivel === 'N4') nivelGlobal = calcNivel(taxaGlobal);
-    else nivelGlobal = u.nivel;
+    var nivelGlobal = calcNivel(taxaGlobal);
 
-    /* Recalcula nível de cada categoria se necessário */
     cats = cats.map(function(c){
-      if(!c.nivel || c.nivel === 'N4'){
-        c.nivel = calcNivel(c.taxa || 0);
-      }
+      c.nivel = calcNivel(c.taxa || 0);
       return c;
     });
 
@@ -317,7 +301,6 @@ function init(json){
       categorias: cats
     };
 
-    /* Actualiza também o nível da unidade para o nível calculado */
     u.taxa  = taxaGlobal;
     u.nivel = nivelGlobal;
     u.historico = [];
@@ -438,9 +421,6 @@ function renderDetail(i){
   var h='<div class="det-card"><div class="card-top">';
   h+='<div class="col-rank"><div class="rank-num">'+(i+1)+'</div><div class="pill '+pc+'">'+(u.nivel||'—')+'</div></div>';
   h+='<div class="col-id"><div class="u-nome">'+u.nome+'</div>';
-  
-  
-  
   h+='</div>';
   h+='<div class="col-cats">';
   cats.forEach(function(c,ci){
@@ -536,7 +516,6 @@ function buildCatBody(u,ui,ci){
   }
   h+='</div>';
 
-  /* selector de auditoria histórica */
   if(hist.length>0){
     var ai=_audSel[ui]||0;
     h+='<div class="hist-aud-sel'+(mode==='hist'?' v':'')+'" id="hist-aud-sel-'+ui+'">';
@@ -558,7 +537,6 @@ function buildCatBody(u,ui,ci){
 }
 
 function buildAtual(u,ui,ci,src){
-  /* src: 'atual' ou índice numérico do histórico */
   var cats=src==='atual'?(u.auditoria_atual.categorias||[]):(u.historico[src]?u.historico[src].categorias:[]);
   var cat=cats[ci];
   if(!cat) return '<p style="color:var(--ink-4);font-size:13px">Sem dados.</p>';
@@ -573,7 +551,6 @@ function buildAtual(u,ui,ci,src){
   h+='<canvas id="chart-'+ui+'" style="max-height:180px"></canvas>';
   h+='<div class="chart-leg"><div class="leg-item"><div class="leg-dot" style="background:var(--ok)"></div>Conformes</div><div class="leg-item"><div class="leg-dot" style="background:var(--n1)"></div>Não conformes</div><div class="leg-item"><div class="leg-dot" style="background:var(--n2)"></div>Em atraso</div></div></div>';
 
-  /* Legenda de Tarefas HACCP */
   h += '<div class="leg-bar" style="margin-top:20px;background:var(--paper-2);border-style:dashed;display:block;">';
   h += '<div style="font-weight:800;text-transform:uppercase;font-size:10px;color:var(--ink-4);width:100%;margin-bottom:8px">Legenda de Tarefas HACCP</div>';
   h += '<div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(200px, 1fr));gap:10px;width:100%;">';
@@ -584,7 +561,6 @@ function buildAtual(u,ui,ci,src){
   h += '<div><b style="color:var(--blue)">E:</b> Documentação e Planos</div>';
   h += '</div></div>';
 
-  /* Tabela de Itens abaixo do gráfico */
   var itens = cat.itens || [];
   if(itens.length > 0){
     h += '<div style="margin-top:24px;font-size:12px;font-weight:700;color:var(--ink-3);margin-bottom:12px">Lista de Itens — ' + (cat.nome_categoria || 'Tarefa ' + cat.categoria) + '</div>';
@@ -596,7 +572,6 @@ function buildAtual(u,ui,ci,src){
       if(item.status_acao==='Concluida'){sCls='s-ok';sTxt='Concluída';}
       else if(item.status_acao==='Em_Atraso'){sCls='s-atraso';sTxt='Em Atraso';}
       else if(item.status_acao==='Em_Andamento'){sCls='s-andamento';sTxt='Em Andamento';}
-      
       h += '<tr>';
       h += '<td class="td-desc">' + (item.descricao || '—') + '</td>';
       h += '<td class="td-resp">' + (item.responsavel_acao || '—') + '</td>';
@@ -663,7 +638,7 @@ function buildHistContent(u,ui,ci,ai){
 function vc(lbl,val,style){return '<div class="val-card"><div class="val-lbl">'+lbl+'</div><div class="val-num" style="'+style+'">'+val+'</div></div>';}
 function hsc(lbl,val,cor){return '<div class="hs-card"><div class="hs-lbl">'+lbl+'</div><div class="hs-val" style="color:'+cor+'">'+val+'</div></div>';}
 
-/* CHART — sempre da auditoria atual */
+/* CHART */
 function buildChart(u,ui,ci,src){
   var cats=u.auditoria_atual.categorias||[];
   var cat=cats[ci]; if(!cat)return;
