@@ -266,7 +266,16 @@ function init(json){
   _U = json.unidades || [];
 
   _U = _U.map(function(u){
-    if(u.auditoria_atual) return u;
+    if(u.auditoria_atual){
+      /* Recalcula o nível mesmo que já venha preenchido no JSON */
+      u.auditoria_atual.nivel = calcNivel(u.auditoria_atual.taxa || 0);
+      u.nivel = u.auditoria_atual.nivel;
+      /* Recalcula também o nível de cada categoria */
+      (u.auditoria_atual.categorias || []).forEach(function(c){
+        c.nivel = calcNivel(c.taxa || 0);
+      });
+      return u;
+    }
 
     var cats = u.categorias || [];
 
