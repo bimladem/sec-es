@@ -447,7 +447,7 @@ function renderDetail(i){
     var t=c.totaisCategoria||{};
     var sel=(_catSel[i]===ci);
     h+='<div class="cat-group'+(sel?' sel':'')+'" onclick="selCat('+i+','+ci+')">';
-    h+='<div class="cg-label">Categoria '+c.categoria+'</div>';
+    h+='<div class="cg-label">'+(c.nome_categoria || 'Tarefa '+c.categoria)+'</div>';
     h+='<div class="cg-taxa" style="color:'+taxaCor(c.taxa)+'">'+c.taxa+'%</div>';
     if(t.acoes_atraso>0) h+='<div class="cg-atraso">'+t.acoes_atraso+' atrasos</div>';
     else h+='<div style="font-size:10px;color:var(--ok)">✓ OK</div>';
@@ -524,7 +524,9 @@ function buildCatBody(u,ui,ci){
   var mode=_viewMode[ui]||'atual';
   var hist=u.historico||[];
 
-  var h='<div class="cat-title">Categoria '+cat.categoria+' · '+u.nome+'</div>';
+  var areaMap = {'A': 'Higiene e Limpeza', 'B': 'Armazenamento e Stock', 'C': 'Controlo de Temperaturas', 'D': 'Pest Control', 'E': 'Documentação e Planos'};
+  var areaNome = areaMap[cat.categoria] || u.nome;
+  var h='<div class="cat-title">'+(cat.nome_categoria || 'Tarefa '+cat.categoria)+' · '+areaNome+'</div>';
   h+='<div class="view-tabs">';
   h+='<button class="vtab'+(mode==='atual'?' on':'')+'" data-v="atual" onclick="setView('+ui+',\'atual\')">Visão Atual</button>';
   if(hist.length>0){
@@ -567,33 +569,20 @@ function buildAtual(u,ui,ci,src){
   h+=vc('Não conformes',fmt(t.nok||0),'color:var(--n1)');
   h+=vc('Ações em atraso',fmt(t.acoes_atraso||0),'color:var(--n2)');
   h+='</div>';
-  h+='<div class="chart-wrap"><div style="font-size:12px;font-weight:700;color:var(--ink-3);margin-bottom:12px">Distribuição de itens — Categoria '+cat.categoria+'</div>';
+  h+='<div class="chart-wrap"><div style="font-size:12px;font-weight:700;color:var(--ink-3);margin-bottom:12px">Distribuição de itens — '+(cat.nome_categoria || 'Tarefa '+cat.categoria)+'</div>';
   h+='<canvas id="chart-'+ui+'" style="max-height:180px"></canvas>';
   h+='<div class="chart-leg"><div class="leg-item"><div class="leg-dot" style="background:var(--ok)"></div>Conformes</div><div class="leg-item"><div class="leg-dot" style="background:var(--n1)"></div>Não conformes</div><div class="leg-item"><div class="leg-dot" style="background:var(--n2)"></div>Em atraso</div></div></div>';
 
-  /* Nova Tabela de Itens abaixo do gráfico */
-  var itens = cat.itens || [];
-  if(itens.length > 0){
-    h += '<div style="margin-top:24px;font-size:12px;font-weight:700;color:var(--ink-3);margin-bottom:12px">Lista de Itens — Categoria ' + cat.categoria + '</div>';
-    h += '<div class="hist-table-wrap"><table class="hist-table"><thead><tr>';
-    h += '<th>Descrição</th><th>Responsável</th><th class="c">Prazo</th><th class="c">Status Ação</th><th>Medida Corretiva</th>';
-    h += '</tr></thead><tbody>';
-    itens.forEach(function(item){
-      var sCls='s-na', sTxt='N/A';
-      if(item.status_acao==='Concluida'){sCls='s-ok';sTxt='Concluída';}
-      else if(item.status_acao==='Em_Atraso'){sCls='s-atraso';sTxt='Em Atraso';}
-      else if(item.status_acao==='Em_Andamento'){sCls='s-andamento';sTxt='Em Andamento';}
-      
-      h += '<tr>';
-      h += '<td class="td-desc">' + (item.descricao || '—') + '</td>';
-      h += '<td class="td-resp">' + (item.responsavel_acao || '—') + '</td>';
-      h += '<td class="td-prazo">' + fmtData(item.prazo) + '</td>';
-      h += '<td class="td-status"><span class="status-badge ' + sCls + '">' + sTxt + '</span></td>';
-      h += '<td class="td-mc">' + (item.medida_corretiva || '—') + '</td>';
-      h += '</tr>';
-    });
-    h += '</tbody></table></div>';
-  }
+  /* Legenda de Tarefas HACCP */
+  h += '<div class="leg-bar" style="margin-top:20px;background:var(--paper-2);border-style:dashed;display:block;">';
+  h += '<div style="font-weight:800;text-transform:uppercase;font-size:10px;color:var(--ink-4);width:100%;margin-bottom:8px">Legenda de Tarefas HACCP</div>';
+  h += '<div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(200px, 1fr));gap:10px;width:100%;">';
+  h += '<div><b style="color:var(--blue)">A:</b> Higiene e Limpeza</div>';
+  h += '<div><b style="color:var(--blue)">B:</b> Armazenamento e Stock</div>';
+  h += '<div><b style="color:var(--blue)">C:</b> Controlo de Temperaturas</div>';
+  h += '<div><b style="color:var(--blue)">D:</b> Pest Control</div>';
+  h += '<div><b style="color:var(--blue)">E:</b> Documentação e Planos</div>';
+  h += '</div></div>';
 
   return h;
 }
