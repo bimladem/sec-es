@@ -405,7 +405,8 @@ function renderTable(){
       var atraso=(u.auditoria_atual.categorias||[]).reduce(function(s,c){return s+(c.totaisCategoria.acoes_atraso||0);},0);
       h+='<div class="ht-row" onclick="goDetail('+i+')">';
       h+='<div class="ht-td" style="flex-direction:column;gap:5px;background:#f1f3f5"><div style="font-family:\'DM Serif Display\',serif;font-size:22px;color:var(--ink-2)">'+(i+1)+'</div><div class="pill '+pc+'">'+(u.nivel||'—')+'</div></div>';
-      h+='<div class="ht-td L" style="flex-direction:column;align-items:flex-start;gap:2px"><div style="font-weight:700;font-size:14px">'+u.nome+'</div><div style="font-size:11px;color:var(--ink-4)">'+(u.localizacao||'')+'</div></div>';
+      var _loc=(u.localizacao||'').toLowerCase()==='não definido'?'':(u.localizacao||'');
+      h+='<div class="ht-td L" style="flex-direction:column;align-items:flex-start;gap:2px"><div style="font-weight:700;font-size:14px">'+u.nome+'</div>'+(_loc?'<div style="font-size:11px;color:var(--ink-4)">'+_loc+'</div>':'')+' </div>';
       h+='<div class="ht-td" style="flex-direction:column;gap:2px"><div style="font-size:15px;font-weight:700"><span style="color:var(--ok)">'+fmt(ok)+'</span> / '+fmt(total)+'</div><div style="font-size:11px;color:var(--ink-4)">itens conformes</div></div>';
       h+='<div class="ht-td" style="flex-direction:column;gap:2px"><div style="font-size:15px;font-weight:700;color:'+(atraso>0?'var(--n1)':'var(--ok)')+'">'+fmt(atraso)+'</div><div style="font-size:11px;color:var(--ink-4)">ações em atraso</div></div>';
       h+='<div class="ht-td"><div class="mini-prog"><div class="mini-row"><div class="mini-track"><div class="mini-fill f-blue" style="width:'+taxa+'%"></div></div><span class="mini-pct" style="color:'+taxaCor(taxa)+'">'+taxa+'%</span></div></div></div>';
